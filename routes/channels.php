@@ -1,5 +1,7 @@
 <?php
 
+use App\Message;
+use App\Trek;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -15,4 +17,13 @@ use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('App.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
+});
+
+
+Broadcast::channel('Messages.Direct.{userId}', function ($user, $messageId) {
+    return $user->id === Message::findOrNew($messageId)->reciever_id;
+});
+
+Broadcast::channel('Messages.Group.{trekId}', function ($user, $trekId) {
+    return Trek::findOrNew($trekId)->users();
 });
