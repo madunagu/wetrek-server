@@ -10,6 +10,10 @@ use Validator;
 
 use App\Trek;
 use App\Http\Resources\TrekCollection;
+use App\Location;
+use App\Notifications\TrekStarting;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Redis;
 
 class TrekController extends Controller
 {
@@ -110,19 +114,53 @@ class TrekController extends Controller
     public function join(Request $request)
     {
         $id = (int)$request->route('id');
-        $user_id = Auth::id();
+        $user = Auth::user();
         $trek = Trek::find($id);
         $trek->users()->create([
             'trek_id' => $id,
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'confirmed' => true
         ]);
+        //TODO change database time to php time here
+        $when = $trek->starting_at;
+        Notification::send($user, (new TrekStarting($trek))->delay($when));
         return response()->json([
             'data' => true
         ], 200);
     }
 
 
+
+    public function updateLocation(Request $request)
+    {
+
+        $id = (int)$request->route('id');
+        $validator = Validator::make($request->all(), [
+            'id' => 'integer|required|exists:treks,id',
+            'lon' => 'string|required|max:255',
+            'lat' => 'nullable|integer',
+            'end_address_id' => 'nullable|integer',
+            'starting_at' => 'nullable|date',
+            'ending_at' => 'nullable|date',
+            'repeat' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+
+        $trek = Trek::find($id);
+        $data = collect($request->all())->toArray();
+        $location = Location::create([
+            'lon' => $data['lon'],
+            'lat' => $data['lat'],
+        ]);
+
+        $trek->locations()->attach($location->id);
+        return response()->json([
+            'sucess' => true,
+        ]);
+    }
 
     public function delete(Request $request)
     {

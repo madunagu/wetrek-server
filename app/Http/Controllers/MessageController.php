@@ -48,6 +48,8 @@ class MessageController extends Controller
 
         $query = Message::where(['reciever_id' => $userId, 'sender_id' => $id]);
         if ($isTrekGroup) {
+            // shorthand if example
+            //$perms =  ($perms ?: 'Hello World');
             $query->where('is_group', 'true');
         }
 

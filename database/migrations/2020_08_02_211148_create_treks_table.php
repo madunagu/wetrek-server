@@ -19,7 +19,6 @@ class CreateTreksTable extends Migration
             $table->integer('start_address_id');
             $table->integer('end_address_id');
             $table->integer('user_id');
-            $table->integer('group_chat_id')->nullable();
             $table->string('repeat')->nullable();
             $table->dateTime('starting_at')->nullable();
             $table->dateTime('ending_at')->nullable();

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMapDirectionsTable extends Migration
+class CreateLocationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateMapDirectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('map_directions', function (Blueprint $table) {
+        Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->integer('trek_id');
-            $table->json('directions_data')->nullable();
+            $table->double('lon', 14, 8)->nullable();
+            $table->double('lat', 14, 8)->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ class CreateMapDirectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('map_directions');
+        Schema::dropIfExists('locations');
     }
 }
