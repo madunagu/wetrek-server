@@ -41,7 +41,16 @@ class MessageController extends Controller
 
     public function list(Request $request)
     {
-        $id = $request->route('id');
+        $length = $request['length'];
+        $userId = Auth::user()->id;
+        $query = Message::where(['reciever_id' => $userId])->groupBy(['sender_id','is_group'])->orderBy(['id' => 'DESC']);
+        $data = $query->paginate($length);
+        return response()->json(compact('data'));
+    }
+
+    public function get(Request $request)
+    {
+        $id = (int)$request->route('id');
         $length = $request['length'];
         $isTrekGroup = $request['is_group'];
         $userId = Auth::user()->id;
