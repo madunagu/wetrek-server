@@ -19,6 +19,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 });
 
+
+Route::post('/login', 'UserController@login');
+Route::post('/register', 'UserController@register');
+
 Route::middleware('auth:api')->group(function () {
 
     Route::get('/addresses', 'AddressController@list');
@@ -27,12 +31,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/addresses/{id}', 'AddressController@update');
     Route::delete('/addresses/{id}', 'AddressController@delete');
 
-
-    Route::get('/events', 'EventController@list');
-    Route::post('/events', 'EventController@create');
-    Route::get('/events/{id}', 'EventController@get');
-    Route::put('/events/{id}', 'EventController@update');
-    Route::delete('/events/{id}', 'EventController@delete');
 
     
     Route::get('/treks', 'TrekController@list');
@@ -43,10 +41,6 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/treks/{id}', 'TrekController@delete');
 
 
-    Route::get('/profile-media', 'ProfileMediaController@list');
-    Route::post('/profile-media', 'ProfileMediaController@create');
-    Route::get('/profile-media/{id}', 'ProfileMediaController@get');
-    Route::put('/profile-media/{id}', 'ProfileMediaController@update');
-    Route::delete('/profile-media/{id}', 'ProfileMediaController@delete');
+
 
 });

@@ -15,7 +15,7 @@ class TrekCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'data' => EventResource::collection($this->collection),
+            'data' => TrekResource::collection($this->collection),
             'pagination' => [
                 'total' => $this->total(),
                 'count' => $this->count(),

@@ -13,9 +13,8 @@ class CreateTreksDoneTable extends Migration
      */
     public function up()
     {
-        Schema::create('treks_done', function (Blueprint $table) {
+        Schema::create('treks_repeated', function (Blueprint $table) {
             $table->id();
-            $table->integer('trek_id');
             $table->timestamps();
         });
     }

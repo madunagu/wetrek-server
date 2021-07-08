@@ -13,7 +13,7 @@ class CreateTrekUserAttendedTable extends Migration
      */
     public function up()
     {
-        Schema::create('trek_user_attended', function (Blueprint $table) {
+        Schema::create('trek_attendee', function (Blueprint $table) {
             $table->id();
             $table->integer('trek_done_id');
             $table->integer('user_id');

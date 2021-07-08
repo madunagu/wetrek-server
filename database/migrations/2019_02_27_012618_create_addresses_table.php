@@ -24,8 +24,7 @@ class CreateAddressesTable extends Migration
             $table->string('postal_code')->nullable();
             $table->boolean('default_address')->default(0);
             $table->string('name')->nullable();
-            $table->float('longitude', 20, 15)->nullable();
-            $table->float('latitude', 20, 15)->nullable();
+            $table->integer('location_id')->nullable();
             $table->boolean('parseable')->default(1);
             $table->softDeletes();
             $table->timestamps();

@@ -11,8 +11,7 @@ $factory->define(Trek::class, function (Faker $faker) {
         'start_address_id' => 1,
         'end_address_id' => 4,
         'starting_at' => $faker->dateTime()->format('Y-m-d H:i:s'),
-        'ending_at' => $faker->dateTime()->format('Y-m-d H:i:s'),
-        'group_chat_id'=>1,
-        'user_id'=>1,
+        'duration' => random_int(30, 3000),
+        'user_id' => 1,
     ];
 });

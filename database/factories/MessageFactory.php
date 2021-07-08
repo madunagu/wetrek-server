@@ -10,5 +10,6 @@ $factory->define(Message::class, function (Faker $faker) {
         'message' => $faker->sentence,
         'sender_id' => random_int(1, 20),
         'reciever_id' => random_int(1, 20),
+        'is_group' => random_int(0, 1) == 1,
     ];
 });

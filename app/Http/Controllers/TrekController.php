@@ -99,7 +99,7 @@ class TrekController extends Controller
         }
 
         $query = $request['q'];
-        $treks = Trek::with('church'); //TODO: add chat group and map data
+        $treks = Trek::where([]); //TODO: add chat group and map data
         if ($query) {
             $treks = $treks->search($query);
         }
