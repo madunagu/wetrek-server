@@ -12,6 +12,7 @@ class TrekSeeder extends Seeder
      */
     public function run()
     {
+        Trek::truncate();
         factory(Trek::class, 10)->create();
     }
 }

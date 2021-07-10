@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-
 });
 
 
@@ -24,6 +23,7 @@ Route::post('/login', 'UserController@login');
 Route::post('/register', 'UserController@register');
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('/users/{id}', 'UserController@update');
 
     Route::get('/addresses', 'AddressController@list');
     Route::post('/addresses', 'AddressController@create');
@@ -31,8 +31,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/addresses/{id}', 'AddressController@update');
     Route::delete('/addresses/{id}', 'AddressController@delete');
 
-
-    
     Route::get('/treks', 'TrekController@list');
     Route::post('/treks', 'TrekController@create');
     Route::get('/treks/{id}', 'TrekController@get');
@@ -44,11 +42,6 @@ Route::middleware('auth:api')->group(function () {
     // Route::post('/messages', 'MessageController@create');
     Route::get('/messages/{id}', 'MessageController@get');
     Route::post('/messages/{id}', 'MessageController@create');
-    Route::put('/messages/{id}', 'MessageController@update');
+    // Route::put('/messages/{id}', 'MessageController@update');
     Route::delete('/messages/{id}', 'MessageController@delete');
-
-
-
-
-
 });

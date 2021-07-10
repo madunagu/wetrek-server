@@ -21,7 +21,7 @@ class TrekTest extends CrudTest
      *
      * @var string
      */
-    protected $endpoint = 'trek';
+    protected $endpoint = 'treks';
     /**
      * Any additional "states" to add to factory
      *

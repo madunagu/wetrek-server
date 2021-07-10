@@ -1,5 +1,6 @@
 <?php
 
+use App\Address;
 use Illuminate\Database\Seeder;
 
 class AddressSeeder extends Seeder
@@ -11,6 +12,7 @@ class AddressSeeder extends Seeder
      */
     public function run()
     {
+        Address::truncate();
         factory(App\Address::class, 20)->create();
     }
 }

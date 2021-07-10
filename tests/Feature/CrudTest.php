@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use Tests\TestCase;
@@ -6,9 +7,12 @@ use Tests\Traits\AttachJwtToken;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use App\User;
+
 abstract class CrudTest extends TestCase
 {
-    use AttachJwtToken;
+    // use AttachJwtToken;
+    use RefreshDatabase;
 
     /**
      * Uses the model factory to generate a fake entry
@@ -17,8 +21,7 @@ abstract class CrudTest extends TestCase
      */
     public function createPost()
     {
-        if($this->states)
-        {
+        if ($this->states) {
             //return factory($this->model)->states($this->states)->create();
             return factory($this->model)->create();
         }
@@ -34,7 +37,8 @@ abstract class CrudTest extends TestCase
      */
     public function testIndex()
     {
-        $response = $this->json('GET', "api/{$this->endpoint}");
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user,'api')->json('GET', "api/{$this->endpoint}");
         $response
             ->assertStatus(200)
             ->assertJson([
@@ -52,8 +56,10 @@ abstract class CrudTest extends TestCase
     {
         // Create a test shop with filled out fields
         $activity = $this->createPost();
+
+        $user = factory(User::class)->create();
         // Check the API for the new entry
-        $response = $this->json('GET', "api/{$this->endpoint}/{$activity->id}");
+        $response = $this->actingAs($user,'api')->json('GET', "api/{$this->endpoint}/{$activity->id}");
         // Delete the test shop
         $activity->delete();
         $response
@@ -72,14 +78,15 @@ abstract class CrudTest extends TestCase
     {
         $activity = $this->createPost();
         $activity = $activity->toArray();
+
+        $user = factory(User::class)->create();
         /**
          * Pass in any extra data
          */
-        if($this->store)
-        {
+        if ($this->store) {
             $activity = array_merge($activity, $this->store);
         }
-        $response = $this->json('POST', "api/{$this->endpoint}/", $activity);
+        $response = $this->actingAs($user,'api')->json('POST', "api/{$this->endpoint}/", $activity);
         ($this->model)::destroy($activity['id']);
         $response
             ->assertStatus(201)
@@ -96,8 +103,9 @@ abstract class CrudTest extends TestCase
      */
     public function testDestroy()
     {
+        $user = factory(User::class)->create();
         $activity = $this->createPost();
-        $response = $this->json('DELETE', "api/{$this->endpoint}/{$activity->id}");
+        $response = $this->actingAs($user,'api')->json('DELETE', "api/{$this->endpoint}/{$activity->id}");
         $response
             ->assertStatus(200);
     }

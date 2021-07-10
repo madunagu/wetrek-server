@@ -13,6 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        User::truncate();
         User::insert([
             'email' => 'ekenemadunagu@gmail.com',
             'password' => Hash::make('mercy'),
