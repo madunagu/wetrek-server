@@ -20,11 +20,11 @@ class TrekController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'string|required|max:255',
-            'start_address_id' => 'nullable|integer',
-            'end_address_id' => 'nullable|integer',
+            'title' => 'string|required|max:255',
+            'start_address' => 'required|string',
+            'end_address' => 'required|string',
+            'directions' => 'required|string',
             'starting_at' => 'nullable|date',
-            'ending_at' => 'nullable|date',
             'repeat' => 'nullable|string',
         ]);
 
@@ -48,11 +48,11 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'integer|required|exists:treks,id',
-            'name' => 'string|required|max:255',
-            'start_address_id' => 'nullable|integer',
-            'end_address_id' => 'nullable|integer',
+            'title' => 'string|required|max:255',
+            'start_address' => 'required|string',
+            'end_address' => 'required|string',
+            'directions' => 'required|string',
             'starting_at' => 'nullable|date',
-            'ending_at' => 'nullable|date',
             'repeat' => 'nullable|string',
         ]);
 
@@ -61,12 +61,15 @@ class TrekController extends Controller
         }
 
         $data = collect($request->all())->toArray();
-        $data['user_id'] = Auth::user()->id;
-        $id = $request->route('id');
-        $result = Trek::find($id);
-        //update result
-        $result = $result->update($data);
 
+        $user_id = Auth::user()->id;
+        $id = $request->route('id');
+        $trek = Trek::find($id);
+        if ($user_id == $trek->user_id)
+            $result = $trek->update($data);
+        else
+            //TODO: throw unauthorized exception
+            return response()->json(['data' => false], 422);
 
         if ($result) {
             return response()->json(['data' => true], 201);
@@ -92,7 +95,7 @@ class TrekController extends Controller
     public function list(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'q' => 'nullable|string|min:3'
+            'q' => 'nullable|string'
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
@@ -136,25 +139,19 @@ class TrekController extends Controller
 
         $id = (int)$request->route('id');
         $validator = Validator::make($request->all(), [
-            'id' => 'integer|required|exists:treks,id',
+            'user_id' => 'integer|required|exists:user,id',
             'lon' => 'string|required|max:255',
             'lat' => 'nullable|integer',
-            'end_address_id' => 'nullable|integer',
-            'starting_at' => 'nullable|date',
-            'ending_at' => 'nullable|date',
-            'repeat' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
+        $data = collect($request->all())->toArray();
 
         $trek = Trek::find($id);
-        $data = collect($request->all())->toArray();
-        $location = Location::create([
-            'lon' => $data['lon'],
-            'lat' => $data['lat'],
-        ]);
+
+        $location = Location::create($data);
 
         $trek->locations()->attach($location->id);
         return response()->json([

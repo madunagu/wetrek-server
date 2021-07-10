@@ -15,14 +15,14 @@ class CreateTreksTable extends Migration
     {
         Schema::create('treks', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('title');
             $table->integer('start_address_id');
             $table->integer('end_address_id');
-            $table->integer('user_id');
             $table->string('repeat')->nullable();
             $table->json('directions')->nullable();
             $table->dateTime('starting_at')->nullable();
             $table->integer('duration')->nullable();
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

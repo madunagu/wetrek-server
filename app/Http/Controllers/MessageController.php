@@ -15,13 +15,15 @@ class MessageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'string|required',
+            'is_group' => 'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
 
         $data = collect($request->all())->toArray();
-        $data['user_id'] = Auth::user()->id;
+        $data['sender_id'] = Auth::user()->id;
+        $data['reciever_id'] = (int)$request->route('id');
 
         $result = Message::create($data);
 
@@ -43,7 +45,9 @@ class MessageController extends Controller
     {
         $length = $request['length'];
         $userId = Auth::user()->id;
-        $query = Message::where(['reciever_id' => $userId])->groupBy(['sender_id','is_group'])->orderBy(['id' => 'DESC']);
+        $query = Message::where(['reciever_id' => $userId])
+            ->groupBy(['sender_id', 'is_group'])
+            ->orderBy(['id' => 'DESC']);
         $data = $query->paginate($length);
         return response()->json(compact('data'));
     }
@@ -52,16 +56,14 @@ class MessageController extends Controller
     {
         $id = (int)$request->route('id');
         $length = $request['length'];
-        $isTrekGroup = $request['is_group'];
+        $isTrekGroup = (bool)$request['is_group'];
         $userId = Auth::user()->id;
 
         $query = Message::where(['reciever_id' => $userId, 'sender_id' => $id]);
         if ($isTrekGroup) {
-            // shorthand if example
-            //$perms =  ($perms ?: 'Hello World');
-            $query->where('is_group', 'true');
+            $query = $query->where('is_group', 'true');
         }
-
+        $query = $query->orderBy(['id' => 'DESC']);
         $data = $query->paginate($length);
         return response()->json(compact('data'));
     }

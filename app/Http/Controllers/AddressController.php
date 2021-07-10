@@ -7,59 +7,72 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 
 use App\Address;
+use App\AddressGeometry;
+use App\Location;
 
 class AddressController extends Controller
 {
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'address1' => 'string|required|max:255',
-            'address2' => 'nullable|string|max:255',
-            'country' => 'string|required|max:255',
-            'state' => 'string|required|max:255',
-            'city' => 'string|required|max:255',
-            'postal_code' => 'nullable|string|max:20',
-            'default_address' => 'nullable|boolean',
-            'name' =>  'nullable|string|max:255',
-            'longitude' => 'nullable|numeric|max:255',
-            'latitude' => 'nullable|numeric|max:255'
+            'formatted_address' => 'string|required',
+            'place_id' => 'nullable|string|max:255',
+            'plus_code' => 'string|required|max:255',
+            'type' => 'string|required',
+            'geometry' => 'nullable|string',
+            'address_components' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
 
+
+
         $data = collect($request->all())->toArray();
+
+        $data = $this->parseGeometry($data);
         $data['user_id'] = Auth::user()->id;
 
         $result = Address::create($data);
         //obtain longitude and latitude if they werent set
-        if (!$result->longitude || !$result->latitude) {
-            //que set latitude and longitude event
-            $this->find_address_geolocation($result);
-        }
 
         if ($result) {
-            return response()->json(['data'=>$result], 201);
+            return response()->json(['data' => $result], 201);
         } else {
-            return response()->json(['data'=>false,'errors'=>'unknown error occured'], 400);
+            return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
+    }
+
+    public function parseGeometry(array $data): array
+    {
+        $geometryData = json_decode($data['geometry']);
+        if ($geometryData) {
+            $location = Location::json($geometryData['location']);
+            $nothEastBound = Location::json($geometryData['viewport']['northeast']);
+            $southWestBound = Location::json($geometryData['viewport']['southwest']);
+            $geometry = AddressGeometry::create(
+                [
+                    'location_id' => $location->id,
+                    'northeast_location_id' => $nothEastBound->id,
+                    'southwest_location_id' => $southWestBound->id,
+                ]
+            );
+            $data['geometry_id'] = $geometry->id;
+        }
+        return $data;
     }
 
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id'=> 'integer|required|exists:addresses,id',
-            'address1' => 'string|required|max:255',
-            'address2' => 'nullable|string|max:255',
-            'country' => 'string|required|max:255',
-            'state' => 'string|required|max:255',
-            'city' => 'string|required|max:255',
-            'postal_code' => 'nullable|integer|max:20',
-            'default_address' => 'nullable|boolean',
-            'name' =>  'nullable|string|max:255',
-            'longitude' => 'nullable|float|max:255',
-            'latitude' => 'nullable|float|max:255'
+            'id' => 'integer|required|exists:addresses,id',
+            'formatted_address' => 'string|required',
+            'place_id' => 'nullable|string|max:255',
+            'plus_code' => 'string|required|max:255',
+            'type' => 'string|required',
+            'geometry' => 'nullable|string',
+            'address_components' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -71,30 +84,18 @@ class AddressController extends Controller
         $data['user_id'] = Auth::user()->id;
         $result = Address::find($id);
         //obtain longitude and latitude if they werent set
-        if (!$result->longitude || !$result->latitude) {
-            //que set latitude and longitude event
-            $this->find_address_geolocation($result);
-        }
         $result = $result->update($data);
         if ($result) {
-            return response()->json(['data'=>true], 201);
+            return response()->json(['data' => true], 201);
         } else {
-            return response()->json(['data'=>false,'errors'=>'unknown error occured'], 400);
+            return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
     }
 
-    public function find_address_geolocation(Address $address)
-    {
-    }
 
     public function get(Request $request)
     {
         $id = (int)$request->route('id');
-        // $address = Address::find($id);
-        // return response()->json([
-        //         'data' => $address
-        //     ], 200);
-       
         if ($address = Address::find($id)) {
             return response()->json([
                 'data' => $address

@@ -40,6 +40,14 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/treks/{id}', 'TrekController@update');
     Route::delete('/treks/{id}', 'TrekController@delete');
 
+    Route::get('/messages', 'MessageController@list');
+    // Route::post('/messages', 'MessageController@create');
+    Route::get('/messages/{id}', 'MessageController@get');
+    Route::post('/messages/{id}', 'MessageController@create');
+    Route::put('/messages/{id}', 'MessageController@update');
+    Route::delete('/messages/{id}', 'MessageController@delete');
+
+
 
 
 
