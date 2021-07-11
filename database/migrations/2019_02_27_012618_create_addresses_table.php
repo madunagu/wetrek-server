@@ -17,10 +17,10 @@ class CreateAddressesTable extends Migration
             $table->id();
             $table->string('formatted_address');
             $table->string('place_id')->nullable();
-            $table->json('types')->nullable();
-            $table->json('plus_code')->nullable();
-            $table->json('geometry')->nullable();
-            $table->json('address_components')->nullable();
+            $table->text('types')->nullable();
+            $table->text('plus_code')->nullable();
+            $table->text('geometry')->nullable();
+            $table->text('address_components')->nullable();
             $table->integer('user_id');
            
             $table->double('lng', 14, 8)->nullable();
