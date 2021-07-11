@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Trek;
+use App\User;
 
 class TrekTest extends CrudTest
 {
@@ -41,10 +42,12 @@ class TrekTest extends CrudTest
     public function testJoinTrek()
     {
         $activity = $this->createPost();
+        
+        $user = factory(User::class)->create();
         // Check the API for the new entry
-        $response = $this->json('POST', "api/{$this->endpoint}/join");
+        $response = $this->actingAs($user,'api')->json('POST', "api/{$this->endpoint}/{$activity->id}");
         // Delete the test shop
-        $activity->delete();
+        // $activity->delete();
         $response
             ->assertStatus(200)
             ->assertJson([

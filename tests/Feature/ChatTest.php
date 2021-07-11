@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-
+use App\Message;
 class ChatTest extends CrudTest
 {
     /**
@@ -13,7 +13,7 @@ class ChatTest extends CrudTest
      *
      * @var class
      */
-    protected $model = Trek::class;
+    protected $model = Message::class;
     /**
      * The endpoint to query in the API
      * e.g = /api/v1/<endpoint>
@@ -37,17 +37,4 @@ class ChatTest extends CrudTest
      */
     protected $store = [];
 
-    public function testJoinTrek()
-    {
-        $activity = $this->createPost();
-        // Check the API for the new entry
-        $response = $this->json('POST', "api/{$this->endpoint}/join");
-        // Delete the test shop
-        $activity->delete();
-        $response
-            ->assertStatus(200)
-            ->assertJson([
-                'data' => true
-            ]);
-    }
 }

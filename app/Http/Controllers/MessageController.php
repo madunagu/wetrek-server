@@ -15,7 +15,8 @@ class MessageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'string|required',
-            'is_group' => 'nullable',
+            'is_group' => 'nullable|bool',
+            'reciever_id' => 'integer|required'
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
@@ -23,12 +24,12 @@ class MessageController extends Controller
 
         $data = collect($request->all())->toArray();
         $data['sender_id'] = Auth::user()->id;
-        $data['reciever_id'] = (int)$request->route('id');
+        // $data['reciever_id'] = (int)$request->route('id');
 
         $result = Message::create($data);
 
         //Broadcast message into socket listeners
-        if ($data['is_group']) {
+        if (!empty($data['is_group'])) {
             event(new GroupMessageSent($result));
         } else {
             event(new PrivateMessageSent($result));
@@ -73,7 +74,7 @@ class MessageController extends Controller
         $id = $request->route('id');
         $message = Message::findOrFail($id);
         if ($message->delete()) {
-            return response()->json(['data' => true], 201);
+            return response()->json(['data' => true], 200);
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }

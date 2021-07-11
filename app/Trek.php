@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Trek extends Model
 {
-    protected $fillable = ['title', 'start_address', 'end_address', 'directions', 'starting_at', 'user_id'];
+    protected $fillable = ['title', 'start_address_id', 'end_address_id', 'directions', 'starting_at', 'user_id'];
 
     public function locations()
     {

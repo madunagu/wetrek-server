@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Trek;
+use App\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,15 +15,15 @@ class GroupMessageSent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Trek $trek;
+    public Message $message;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Trek $trek)
+    public function __construct(Message $message)
     {
-        $this->trek = $trek;
+        $this->message = $message;
     }
 
     /**
@@ -33,6 +33,6 @@ class GroupMessageSent
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('Messages.Group.' . $this->trek->id);
+        return new PrivateChannel('Messages.Group.' . $this->message->reciever_id);
     }
 }

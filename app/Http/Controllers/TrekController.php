@@ -21,9 +21,9 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'string|required|max:255',
-            'start_address' => 'required|string',
-            'end_address' => 'required|string',
-            'directions' => 'required|string',
+            // 'start_address' => 'required|string',
+            // 'end_address' => 'required|string',
+            'directions' => 'nullable|string',
             'starting_at' => 'nullable|date',
             'repeat' => 'nullable|string',
         ]);
@@ -81,7 +81,7 @@ class TrekController extends Controller
     public function get(Request $request)
     {
         $id = (int)$request->route('id');
-        if ($event = Trek::find($id)->with('users')) {
+        if ($event = Trek::find($id)) {
             return response()->json([
                 'data' => $event
             ], 200);
@@ -119,14 +119,16 @@ class TrekController extends Controller
         $id = (int)$request->route('id');
         $user = Auth::user();
         $trek = Trek::find($id);
-        $trek->users()->create([
-            'trek_id' => $id,
-            'user_id' => $user->id,
-            'confirmed' => true
+        $trek->users()->attach([
+            1 => [
+                'trek_id' => $id,
+                'user_id' => $user->id,
+                // 'confirmed' => true
+            ]
         ]);
         //TODO change database time to php time here
         $when = $trek->starting_at;
-        Notification::send($user, (new TrekStarting($trek))->delay($when));
+        // Notification::send($user, (new TrekStarting($trek))->delay($when));
         return response()->json([
             'data' => true
         ], 200);

@@ -11,7 +11,8 @@ class Address extends Model
 
     protected $fillable = [
         'formatted_address', 'place_id',
-        'geometry_id', 'type',
+        'geometry', 'type',
         'plus_code', 'user_id',
+        'address_components'
     ];
 }

@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 
 use App\Address;
-use App\AddressGeometry;
-use App\Location;
 
 class AddressController extends Controller
 {
@@ -17,25 +15,31 @@ class AddressController extends Controller
         $validator = Validator::make($request->all(), [
             'formatted_address' => 'string|required',
             'place_id' => 'nullable|string|max:255',
-            'plus_code' => 'string|required|max:255',
-            'type' => 'string|required',
-            'geometry' => 'nullable|string',
-            'address_components' => 'nullable|boolean',
+            'plus_code' => 'nullable|json',
+            'types' => 'nullable|array',
+            'geometry' => 'nullable',
+            'address_components' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
 
-
-
         $data = collect($request->all())->toArray();
+        // logger($data);
 
-        $data = $this->parseGeometry($data);
+        // $data = $this->parseLocation($data);
         $data['user_id'] = Auth::user()->id;
-
+        if (!empty($data['geometry'])) {
+            $data['geometry'] = json_encode($data['geometry']);
+        }
+        if (!empty($data['address_components'])) {
+            $data['address_components'] = json_encode($data['address_components']);
+        }
+        if (!empty($data['fields'])) {
+            $data['fields'] = json_encode($data['fields']);
+        }
         $result = Address::create($data);
-        //obtain longitude and latitude if they werent set
 
         if ($result) {
             return response()->json(['data' => $result], 201);
@@ -44,24 +48,14 @@ class AddressController extends Controller
         }
     }
 
-    public function parseGeometry(array $data): array
+    public function parseLocation(array $data): array
     {
-        $geometryData = json_decode($data['geometry']);
-        if ($geometryData) {
-            $location = Location::json($geometryData['location']);
-            $nothEastBound = Location::json($geometryData['viewport']['northeast']);
-            $southWestBound = Location::json($geometryData['viewport']['southwest']);
-            $geometry = AddressGeometry::create(
-                [
-                    'location_id' => $location->id,
-                    'northeast_location_id' => $nothEastBound->id,
-                    'southwest_location_id' => $southWestBound->id,
-                ]
-            );
-            $data['geometry_id'] = $geometry->id;
-        }
+        $data['lng'] = $data['geometry']['location']['lng'];
+        $data['lat'] = $data['geometry']['location']['lat'];
         return $data;
     }
+
+
 
     public function update(Request $request)
     {
@@ -69,10 +63,12 @@ class AddressController extends Controller
             'id' => 'integer|required|exists:addresses,id',
             'formatted_address' => 'string|required',
             'place_id' => 'nullable|string|max:255',
-            'plus_code' => 'string|required|max:255',
-            'type' => 'string|required',
-            'geometry' => 'nullable|string',
-            'address_components' => 'nullable|boolean',
+            'plus_code' => 'nullable|json',
+            'types' => 'nullable|array',
+            'geometry' => 'nullable',
+            'address_components' => 'nullable|array',
+            'lat' => 'nullable',
+            'lng' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -81,6 +77,7 @@ class AddressController extends Controller
         $id = $request->route('id');
 
         $data = collect($request->all())->toArray();
+
         $data['user_id'] = Auth::user()->id;
         $result = Address::find($id);
         //obtain longitude and latitude if they werent set
@@ -109,9 +106,14 @@ class AddressController extends Controller
 
     public function list(Request $request)
     {
-        //here insert search parameters and stuff
+
+        $query = (string) $request['q'];
+        $addresses = Address::with([]); //TODO: add chat group and map data
+        if ($query) {
+            $addresses = $addresses->search($query);
+        }
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
-        $data = Address::paginate($length);
+        $data = $addresses->paginate($length);
         return response()->json(compact('data'));
     }
 

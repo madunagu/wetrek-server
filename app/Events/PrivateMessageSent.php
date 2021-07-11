@@ -34,6 +34,6 @@ class PrivateMessageSent
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('Messages.Direct.' . $this->message->user_id);
+        return new PrivateChannel('Messages.Direct.' . $this->message->reciever_id);
     }
 }
