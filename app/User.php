@@ -40,12 +40,12 @@ class User extends Authenticatable
 
     public function following()
     {
-        return $this->belongsToMany('App\User', 'followers', 'follower_id', 'user_id')->whereKeyNot(1);
+        return $this->belongsToMany('App\User', 'followers', 'follower_id', 'following_id')->whereKeyNot(1);
     }
 
     public function followers()
     {
-        return $this->belongsToMany('App\User', 'followers', 'user_id', 'follower_id');
+        return $this->belongsToMany('App\User', 'followers', 'following_id', 'follower_id');
     }
 
     public function images()
@@ -53,7 +53,7 @@ class User extends Authenticatable
         return $this->morphOne('App\Image', 'imageable');
     }
 
-    public function location()
+    public function locations()
     {
         return $this->hasMany('App\Location')->take(1);
     }

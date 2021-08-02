@@ -11,7 +11,7 @@ class Trek extends Model
 
     public function locations()
     {
-        return $this->hasMany('App\Location');
+        return $this->belongsToMany('App\Location','location_trek','location_id');
     }
 
     public function users()

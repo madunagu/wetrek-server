@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLocationsTable extends Migration
+class CreateLocationTrekTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateLocationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('locations', function (Blueprint $table) {
+        Schema::create('location_trek', function (Blueprint $table) {
             $table->id();
-            $table->double('lon', 14, 8)->nullable();
-            $table->double('lat', 14, 8)->nullable();
-            $table->integer('user_id');
+            $table->integer('trek_id');
+            $table->integer('location_id');
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ class CreateLocationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('locations');
+        Schema::dropIfExists('location_trek');
     }
 }

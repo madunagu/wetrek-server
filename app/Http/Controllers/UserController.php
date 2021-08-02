@@ -5,21 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
-
+use App\Http\Resources\DefaultCollection;
 use Validator;
 
 class UserController extends Controller
 {
     public function get(Request $request)
     {
-        return User::find(Auth::id())->with('following');
+        $id = (int)$request->route('id');
+        return User::find($id)->with('following');
     }
 
     public function user(Request $request)
     {
-        $user = User::find(Auth::id())->with(['location', 'images'])->withCount(['following', 'followers']);
-        return response()->json($user, 401);
-   
+        $user = User::with(['locations'])->withCount(['followers','following'])->find(Auth::id());
+        return response()->json($user, 200);
     }
 
     public function login(Request $request)
@@ -84,7 +84,8 @@ class UserController extends Controller
         //$credentials['is_verified'] = 1;
     }
 
-    public function followers(Request $request){
+    public function followers(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'q' => 'nullable|string'
         ]);
@@ -97,13 +98,21 @@ class UserController extends Controller
         $query = $request['q'];
         $users = User::where([]); //TODO: add chat group and map data
         if ($query) {
-            $treks = $treks->search($query);
+            $users = $users->search($query);
         }
         //here insert search parameters and stuff
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
-        $treks = $treks->paginate($length);
-        $data = new UserCollection($treks);
+        $treks = $users->paginate($length);
+        $data = new DefaultCollection($treks);
         return response()->json($data);
+    }
+
+    public function follow(Request $request)
+    {
+        $following_id = $request->route('id');
+        $user = Auth::user();
+        $user->followers()->toggle([$following_id]);
+        return response()->json(['success' => true]);
     }
 
 
