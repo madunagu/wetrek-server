@@ -50,6 +50,16 @@ class User extends Authenticatable
 
     public function images()
     {
-        return $this->morphToMany('App\Image', 'imageable', 'imageables');
+        return $this->morphOne('App\Image', 'imageable');
+    }
+
+    public function location()
+    {
+        return $this->hasMany('App\Location')->take(1);
+    }
+
+    public function treks()
+    {
+        return $this->belongsToMany('App\Trek', 'trek_user', 'user_id', 'trek_id');
     }
 }

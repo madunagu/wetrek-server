@@ -20,7 +20,7 @@ class TrekController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'string|required|max:255',
+            'name' => 'string|required|max:255',
             // 'start_address' => 'required|string',
             // 'end_address' => 'required|string',
             'directions' => 'nullable|string',
@@ -48,7 +48,7 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'integer|required|exists:treks,id',
-            'title' => 'string|required|max:255',
+            'name' => 'string|required|max:255',
             'start_address' => 'required|string',
             'end_address' => 'required|string',
             'directions' => 'required|string',

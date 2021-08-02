@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Events\GroupMessageSent;
 use App\Events\PrivateMessageSent;
+use App\Http\Resources\MessageCollection;
 use App\Message;
+use App\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Validator;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +19,7 @@ class MessageController extends Controller
         $validator = Validator::make($request->all(), [
             'message' => 'string|required',
             'is_group' => 'nullable|bool',
-            'reciever_id' => 'integer|required'
+            'messagable_id' => 'integer|required'
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
@@ -25,6 +28,11 @@ class MessageController extends Controller
         $data = collect($request->all())->toArray();
         $data['sender_id'] = Auth::user()->id;
         // $data['reciever_id'] = (int)$request->route('id');
+        if (!empty($data['is_group'])) {
+            $data['messagable_type'] = 'trek';
+        } else {
+            $data['messagable_type'] = 'user';
+        }
 
         $result = Message::create($data);
 
@@ -44,13 +52,21 @@ class MessageController extends Controller
 
     public function list(Request $request)
     {
-        $length = $request['length'];
-        $userId = Auth::user()->id;
-        $query = Message::where(['reciever_id' => $userId])
-            ->groupBy(['sender_id', 'is_group'])
-            ->orderBy(['id' => 'DESC']);
-        $data = $query->paginate($length);
-        return response()->json(compact('data'));
+        $length = (int)$request['length'];
+        $user = User::with('treks')->find(Auth::id());
+        $treks = $user->treks->pluck('id');
+        // $treks = [1,2,3,4,5,6,7,8,9,10];
+        $query = Message::where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
+            // ->orWhere(function (Builder $query) use ($treks) {
+            //     return $query->where('messagable_type', 'trek')
+            //         ->whereIn('messagable_id', $treks);
+            // })
+            ->with(['messagable', 'user'])
+            // ->groupBy(['sender_id','messagable_type', 'messagable_id','id','message','sender_id','created_at','updated_at'])
+            ->orderBy('id', 'DESC');
+        $data = $query->paginate(15);
+        $data = new MessageCollection($data);
+        return response()->json($data);
     }
 
     public function get(Request $request)

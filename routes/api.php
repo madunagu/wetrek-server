@@ -14,22 +14,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
 Route::post('/login', 'UserController@login');
 Route::post('/register', 'UserController@register');
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/users/{id}', 'UserController@update');
+    Route::post('/user', 'UserController@user');
 
     Route::get('/addresses', 'AddressController@list');
     Route::post('/addresses', 'AddressController@create');
     Route::get('/addresses/{id}', 'AddressController@get');
     Route::put('/addresses/{id}', 'AddressController@update');
     Route::delete('/addresses/{id}', 'AddressController@delete');
+
+    Route::post('/images', 'ImageController@create');
 
     Route::get('/treks', 'TrekController@list');
     Route::post('/treks', 'TrekController@create');

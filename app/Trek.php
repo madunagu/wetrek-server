@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Trek extends Model
 {
-    protected $fillable = ['title', 'start_address_id', 'end_address_id', 'directions', 'starting_at', 'user_id'];
+    protected $fillable = ['name', 'start_address_id', 'end_address_id', 'directions', 'starting_at', 'user_id'];
 
     public function locations()
     {
@@ -17,5 +17,10 @@ class Trek extends Model
     public function users()
     {
         return $this->belongsToMany('App\User', 'trek_user', 'user_id');
+    }
+
+    public function images()
+    {
+        return $this->morphOne('App\Image', 'imageable');
     }
 }

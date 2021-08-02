@@ -15,6 +15,11 @@ class UserController extends Controller
         return User::find(Auth::id())->with('following');
     }
 
+    public function user(Request $request)
+    {
+        return User::find(Auth::id())->with(['location', 'images'])->withCount(['following', 'followers']);
+    }
+
     public function login(Request $request)
     {
 
@@ -75,6 +80,28 @@ class UserController extends Controller
         ], 200);
         //THIS LINE WAS COMMENTED TO ENABLE UNVERIFIED USERS
         //$credentials['is_verified'] = 1;
+    }
+
+    public function followers(Request $request){
+        $validator = Validator::make($request->all(), [
+            'q' => 'nullable|string'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+
+        $user_id = Auth::id();
+
+        $query = $request['q'];
+        $users = User::where([]); //TODO: add chat group and map data
+        if ($query) {
+            $treks = $treks->search($query);
+        }
+        //here insert search parameters and stuff
+        $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
+        $treks = $treks->paginate($length);
+        $data = new UserCollection($treks);
+        return response()->json($data);
     }
 
 

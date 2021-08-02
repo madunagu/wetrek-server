@@ -15,7 +15,7 @@ class CreateTreksTable extends Migration
     {
         Schema::create('treks', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('name');
             $table->integer('start_address_id');
             $table->integer('end_address_id');
             $table->string('repeat')->nullable();
