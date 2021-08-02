@@ -19,7 +19,7 @@ Route::post('/register', 'UserController@register');
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/users/{id}', 'UserController@update');
-    Route::post('/user', 'UserController@user');
+    Route::get('/user', 'UserController@user');
 
     Route::get('/addresses', 'AddressController@list');
     Route::post('/addresses', 'AddressController@create');
