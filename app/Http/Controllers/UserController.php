@@ -17,7 +17,9 @@ class UserController extends Controller
 
     public function user(Request $request)
     {
-        return User::find(Auth::id())->with(['location', 'images'])->withCount(['following', 'followers']);
+        $user = User::find(Auth::id())->with(['location', 'images'])->withCount(['following', 'followers']);
+        return response()->json($user, 401);
+   
     }
 
     public function login(Request $request)
