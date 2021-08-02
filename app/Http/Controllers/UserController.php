@@ -13,7 +13,7 @@ class UserController extends Controller
     public function get(Request $request)
     {
         $id = (int)$request->route('id');
-        return User::find($id)->with('following');
+        return User::with('following')->find($id);
     }
 
     public function user(Request $request)

@@ -56,12 +56,11 @@ class MessageController extends Controller
         $user = User::with('treks')->find(Auth::id());
         $treks = $user->treks->pluck('id');
         // $treks = [1,2,3,4,5,6,7,8,9,10];
-        $query = Message::where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
+        $query = Message::with(['messagable', 'user'])->where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
             // ->orWhere(function (Builder $query) use ($treks) {
             //     return $query->where('messagable_type', 'trek')
             //         ->whereIn('messagable_id', $treks);
             // })
-            ->with(['messagable', 'user'])
             // ->groupBy(['sender_id','messagable_type', 'messagable_id','id','message','sender_id','created_at','updated_at'])
             ->orderBy('id', 'DESC');
         $data = $query->paginate(15);
