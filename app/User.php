@@ -50,7 +50,13 @@ class User extends Authenticatable
 
     public function picture()
     {
-        return $this->morphOne('App\Image', 'imageable');
+        return $this->morphOne('App\Image', 'imageable')->withDefault([
+            'large'=>'https://picsum.photos/500',
+            'medium'=>'https://picsum.photos/200',
+            'small'=>'https://picsum.photos/100',
+            'full'=>'https://picsum.photos/200',
+            'user_id' => 1,
+        ]);
     }
 
     public function images()
