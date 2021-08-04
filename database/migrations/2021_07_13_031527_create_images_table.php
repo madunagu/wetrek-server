@@ -19,7 +19,7 @@ class CreateImagesTable extends Migration
             $table->string('medium');
             $table->string('small');
             $table->string('full');
-            $table->string('user_id');
+            $table->integer('user_id');
             $table->string('imageable_type');
             $table->integer('imageable_id');
             $table->timestamps();

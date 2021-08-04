@@ -13,7 +13,7 @@ class ImageSeeder extends Seeder
     public function run()
     {
         Image::truncate();
-        Image::insert(
+        Image::create(
             [
                 'large'=>'https://picsum.photos/500',
                 'medium'=>'https://picsum.photos/200',
