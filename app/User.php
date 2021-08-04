@@ -48,9 +48,14 @@ class User extends Authenticatable
         return $this->belongsToMany('App\User', 'followers', 'following_id', 'follower_id');
     }
 
-    public function images()
+    public function picture()
     {
         return $this->morphOne('App\Image', 'imageable');
+    }
+
+    public function images()
+    {
+        return $this->morphMany('App\Image', 'imageable');
     }
 
     public function locations()

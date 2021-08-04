@@ -16,6 +16,8 @@ class Image extends Model
         'imageable_type'
     ];
 
+    protected $hidden = ['imageable_type','imageable_id'];
+
 
     public function imageable()
     {
