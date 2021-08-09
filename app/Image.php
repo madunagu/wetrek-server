@@ -17,7 +17,7 @@ class Image extends Model
     ];
 
     protected $hidden = ['imageable_type','imageable_id'];
-
+    protected $casts = [ 'user_id' => 'integer' ];
 
     public function imageable()
     {

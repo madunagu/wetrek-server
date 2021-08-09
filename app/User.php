@@ -37,6 +37,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    protected $with = ['picture','location'];
+
 
     public function following()
     {
@@ -67,6 +69,15 @@ class User extends Authenticatable
     public function locations()
     {
         return $this->hasMany('App\Location')->take(1);
+    }
+
+    public function location()
+    {
+        return $this->hasOne('App\Location')->withDefault([
+            'lat'=>1,
+            'lng'=>1,
+            'user_id' => 1,
+        ])->take(1);
     }
 
     public function treks()

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateImageablesTable extends Migration
+class CreateMessagesSeenTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateImageablesTable extends Migration
      */
     public function up()
     {
-        Schema::create('imageables', function (Blueprint $table) {
+        Schema::create('messages_seen', function (Blueprint $table) {
             $table->id();
-            $table->integer('image_id');
-            $table->integer('imageable_id');
-            $table->string('imageable_type');
+            $table->integer('message_id');
+            $table->integer('user_id');
+            $table->timestamps();
         });
     }
 
@@ -28,6 +28,6 @@ class CreateImageablesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('imageables');
+        Schema::dropIfExists('messages_seen');
     }
 }

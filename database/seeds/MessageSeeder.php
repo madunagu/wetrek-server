@@ -14,6 +14,5 @@ class MessageSeeder extends Seeder
     {
         Message::truncate();
         factory(App\Message::class, 20)->create();
-
     }
 }

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Trek extends Model
 {
     protected $fillable = ['name', 'start_address_id', 'end_address_id', 'directions', 'starting_at', 'user_id'];
+    protected $with = ['picture'];
 
     public function locations()
     {
-        return $this->belongsToMany('App\Location','location_trek','location_id');
+        return $this->belongsToMany('App\Location', 'location_trek', 'location_id');
     }
 
     public function users()
@@ -21,6 +22,17 @@ class Trek extends Model
 
     public function images()
     {
-        return $this->morphOne('App\Image', 'imageable');
+        return $this->morphMany('App\Image', 'imageable');
+    }
+
+    public function picture()
+    {
+        return $this->morphOne('App\Image', 'imageable')->withDefault([
+            'large' => 'https://picsum.photos/500',
+            'medium' => 'https://picsum.photos/200',
+            'small' => 'https://picsum.photos/100',
+            'full' => 'https://picsum.photos/200',
+            'user_id' => 1,
+        ]);;
     }
 }

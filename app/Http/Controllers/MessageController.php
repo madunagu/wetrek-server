@@ -19,7 +19,7 @@ class MessageController extends Controller
         $validator = Validator::make($request->all(), [
             'message' => 'string|required',
             'is_group' => 'nullable|bool',
-            'messagable_id' => 'integer|required'
+            'to' => 'integer|required'
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
@@ -27,6 +27,7 @@ class MessageController extends Controller
 
         $data = collect($request->all())->toArray();
         $data['sender_id'] = Auth::user()->id;
+        $data['messagable_id'] = $data['to'];
         // $data['reciever_id'] = (int)$request->route('id');
         if (!empty($data['is_group'])) {
             $data['messagable_type'] = 'trek';
@@ -50,15 +51,16 @@ class MessageController extends Controller
         }
     }
 
-    public function list(Request $request)
+    public function chats(Request $request)
     {
         $length = (int)$request['length'];
         $user = User::with('treks')->find(Auth::id());
-        $query = Message::with(['messagable', 'user'])->where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
-            // ->orWhere(function (Builder $query) use ($treks) {
-            //     return $query->where('messagable_type', 'trek')
-            //         ->whereIn('messagable_id', $treks);
-            // })
+        $treks = $user->treks->pluck('id');
+        $query = Message::where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
+            ->orWhere(function (Builder $query) use ($treks) {
+                return $query->where('messagable_type', 'trek')
+                    ->whereIn('messagable_id', $treks);
+            })
             // ->groupBy(['sender_id','messagable_type', 'messagable_id','id','message','sender_id','created_at','updated_at'])
             ->orderBy('id', 'DESC');
         $data = $query->paginate(15);
@@ -66,21 +68,38 @@ class MessageController extends Controller
         return response()->json($data);
     }
 
+    public function list(Request $request)
+    {
+        $id = (int)$request->input('chat_id');
+        $isTrekGroup = (bool)$request['is_group'];
+        $userId = Auth::id();
+        $length = (int)$request['length'] ?? 15;
+        if ($isTrekGroup) {
+            $query = Message::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
+        } else {
+            $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id]);
+        }
+        $query = $query->orderBy('id', 'DESC');
+        $data = $query->paginate($length);
+        $data = new MessageCollection($data);
+        return response()->json($data);
+    }
+
+
     public function get(Request $request)
     {
         $id = (int)$request->route('id');
-        $length = $request['length'];
-        $isTrekGroup = (bool)$request['is_group'];
-        $userId = Auth::user()->id;
-
-        $query = Message::where(['reciever_id' => $userId, 'sender_id' => $id]);
-        if ($isTrekGroup) {
-            $query = $query->where('is_group', 'true');
+        if ($message = Message::find($id)) {
+            return response()->json([
+                'data' => $message
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => false
+            ], 404);
         }
-        $query = $query->orderBy(['id' => 'DESC']);
-        $data = $query->paginate($length);
-        return response()->json(compact('data'));
     }
+
 
     public function delete(Request $request)
     {
