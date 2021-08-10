@@ -630,7 +630,7 @@ c<?php
             'name' => $faker->sentence,
             'start_address_id' => rand(1, 20),
             'end_address_id' => rand(1, 20),
-            'directions' => $directions[rand(0, 1)],
+            'direction' => $directions[rand(0, 1)],
             'starting_at' => $faker->dateTime()->format('Y-m-d H:i:s'),
             'duration' => random_int(30, 3000),
             'user_id' => rand(1, 5),
