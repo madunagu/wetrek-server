@@ -10,9 +10,8 @@ class Address extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'formatted_address', 'place_id',
-        'geometry', 'type',
-        'plus_code', 'user_id',
-        'address_components'
+        'description', 'place_id',
+        'reference', 'geometry',
+        'types', 'user_id',
     ];
 }

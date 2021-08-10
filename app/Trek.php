@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Trek extends Model
 {
     protected $fillable = ['name', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
-    protected $with = ['picture','start_address','end_address'];
+    protected $with = ['picture', 'startAddress', 'endAddress'];
 
     public function locations()
     {
@@ -18,6 +18,16 @@ class Trek extends Model
     public function users()
     {
         return $this->belongsToMany('App\User', 'trek_user', 'user_id');
+    }
+
+    public function startAddress()
+    {
+        return $this->hasOne('App\Address', 'id', 'start_address_id');
+    }
+
+    public function endAddress()
+    {
+        return $this->hasOne('App\Address', 'id', 'end_address_id');
     }
 
     public function images()
