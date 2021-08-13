@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Carbon\Carbon;
 
 class Trek extends Model
 {
@@ -38,11 +39,14 @@ class Trek extends Model
     public function picture()
     {
         return $this->morphOne('App\Image', 'imageable')->withDefault([
+            'id' => 0,
             'large' => 'https://picsum.photos/500',
             'medium' => 'https://picsum.photos/200',
             'small' => 'https://picsum.photos/100',
             'full' => 'https://picsum.photos/200',
             'user_id' => 1,
+            'created_at' =>  Carbon::now(),
+            'updated_at' =>  Carbon::now(),
         ]);;
     }
 }
