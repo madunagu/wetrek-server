@@ -634,5 +634,6 @@ c<?php
             'starting_at' => $faker->dateTime()->format('Y-m-d H:i:s'),
             'duration' => random_int(30, 3000),
             'user_id' => rand(1, 5),
+            'description'=> $faker->sentence,
         ];
     });

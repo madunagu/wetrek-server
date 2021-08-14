@@ -22,6 +22,7 @@ class CreateTreksTable extends Migration
             $table->text('direction')->nullable();
             $table->dateTime('starting_at')->nullable();
             $table->integer('duration')->nullable();
+            $table->integer('description')->nullable();
             $table->integer('user_id');
             $table->timestamps();
         });

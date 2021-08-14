@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class Trek extends Model
 {
-    protected $fillable = ['name', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
+    protected $fillable = ['name', 'description', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
     protected $with = ['picture', 'startAddress', 'endAddress'];
 
     public function locations()
@@ -31,7 +31,7 @@ class Trek extends Model
         return $this->hasOne('App\Address', 'id', 'end_address_id');
     }
 
-    public function images()
+    public function pictures()
     {
         return $this->morphMany('App\Image', 'imageable');
     }
