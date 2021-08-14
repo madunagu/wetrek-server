@@ -397,7 +397,7 @@ c<?php
                     }
                 ],
                 "overview_polyline": {
-                    "points": "yljf@soyRKyBa@eHS{CUiEAEyDPu@Fy@DkG\\gDLaEV}ET@HuBJIqAW}DYgF[}FG{@?UBADQ@_@c@BgAHq@DG@Ft@PLFBHhAe@ZG?cDNkCLeCLcA@wAG_Cb@sBR{AB{HReDJwBTsDVcCLkAPe@Ja@R[RQT?~@@`@EBAH?J"
+                    "points": "yljf@soyRKyBa@eHS{CUiEAEyDPu@Fy@DkG\\\\gDLaEV}ET@HuBJIqAW}DYgF[}FG{@?UBADQ@_@c@BgAHq@DG@Ft@PLFBHhAe@ZG?cDNkCLeCLcA@wAG_Cb@sBR{AB{HReDJwBTsDVcCLkAPe@Ja@R[RQT?~@@`@EBAH?J"
                 },
                 "summary": "Otunba Gani Adams Rd",
                 "warnings": [
@@ -599,7 +599,7 @@ c<?php
                                 "html_instructions": "At the roundabout, take the <b>2nd</b> exit<div style=\"font-size:0.9em\">Pass by Access Closa Agent (on the right)</div><div style=\"font-size:0.9em\">Destination will be on the right</div>",
                                 "maneuver": "roundabout-right",
                                 "polyline": {
-                                    "points": "yjlf@_a~R?AA?AAAAA?A?AAA?A?A?A?A?A?A@A?A??@A?A@A@A@A@?@A@?@?@?@A??@?@?@@??@?@?@?@@@?@@??@@@@@@??@@?@@@?@?@@@?@?JJBDDRLj@FZFb@Df@Ff@@LD`@BZ@FB`@@J@TDt@Ft@B\\BXLvBFzA?@B|@?DDdA@@FlAHfA@PHdAHbAD`@?@JdBHbADbADv@Bn@B`@?NN`CBXPdB@RPvBF`ADf@@ZL`CDt@@TB`@?FBXHdA@@RfD?@DbAB`@HdAB^Dv@JtAHfA@L"
+                                    "points": "yjlf@_a~R?AA?AAAAA?A?AAA?A?A?A?A?A?A@A?A??@A?A@A@A@A@?@A@?@?@?@A??@?@?@@??@?@?@?@@@?@@??@@@@@@??@@?@@@?@?@@@?@?JJBDDRLj@FZFb@Df@Ff@@LD`@BZ@FB`@@J@TDt@Ft@B\\\\BXLvBFzA?@B|@?DDdA@@FlAHfA@PHdAHbAD`@?@JdBHbADbADv@Bn@B`@?NN`CBXPdB@RPvBF`ADf@@ZL`CDt@@TB`@?FBXHdA@@RfD?@DbAB`@HdAB^Dv@JtAHfA@L"
                                 },
                                 "start_location": {
                                     "lat": 6.4582054,
@@ -613,7 +613,7 @@ c<?php
                     }
                 ],
                 "overview_polyline": {
-                    "points": "yljf@soyRKyBa@eHS{CUiEAEyDPu@Fy@DkG\\gDLaEV}ET@HuBJIqAW}DYgFe@}IUyD_@yFYwEgA_QY{F[{F_AgOImA[eDi@qISwEA_A@QF?F?LGFM?MGMKGM?ODCDoCNKGI?IBGFCH@HJNHBPPb@~BT~BJpAR~CXnFJjC\\lFZlEXnFVlEl@rHd@tIv@|L\\bF"
+                    "points": "yljf@soyRKyBa@eHS{CUiEAEyDPu@Fy@DkG\\\\gDLaEV}ET@HuBJIqAW}DYgFe@}IUyD_@yFYwEgA_QY{F[{F_AgOImA[eDi@qISwEA_A@QF?F?LGFM?MGMKGM?ODCDoCNKGI?IBGFCH@HJNHBPPb@~BT~BJpAR~CXnFJjC\\\\lFZlEXnFVlEl@rHd@tIv@|L\\\\bF"
                 },
                 "summary": "Unipetrol Rd",
                 "warnings": [],
