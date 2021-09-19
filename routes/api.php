@@ -18,8 +18,11 @@ Route::post('/login', 'UserController@login');
 Route::post('/register', 'UserController@register');
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/users/{id}', 'UserController@update');
+    Route::post('/users/{id}', 'UserController@follow');
+    Route::put('/users/{id}', 'UserController@update');
     Route::get('/user', 'UserController@user');
+    Route::get('/user/{id}', 'UserController@get');
+    Route::get('/users', 'UserController@list');
 
     Route::get('/addresses', 'AddressController@list');
     Route::post('/addresses', 'AddressController@create');

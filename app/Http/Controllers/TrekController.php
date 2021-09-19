@@ -10,6 +10,7 @@ use Validator;
 
 use App\Trek;
 use App\Http\Resources\TrekCollection;
+use App\Address;
 use App\Location;
 use App\Notifications\TrekStarting;
 use Illuminate\Support\Facades\Notification;
@@ -21,8 +22,8 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'string|required|max:255',
-            // 'start_address' => 'required|string',
-            // 'end_address' => 'required|string',
+            'start_address' => 'required',
+            'end_address' => 'required',
             'directions' => 'nullable|string',
             'starting_at' => 'nullable|date',
             'repeat' => 'nullable|string',
@@ -34,6 +35,10 @@ class TrekController extends Controller
 
         $data = collect($request->all())->toArray();
         $data['user_id'] = Auth::user()->id;
+        $startAddress = Address::create($request['start_address']);
+        $endAddress = Address::create($request['end_address']);
+        $data['start_address_id'] = $startAddress->id;
+        $data['end_address_id'] = $endAddress->id;
         $result = Trek::create($data);
         //create event emmiter or reminder or notifications for those who may be interested
 

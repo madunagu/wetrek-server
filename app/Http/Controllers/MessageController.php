@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -44,8 +45,10 @@ class MessageController extends Controller
             event(new PrivateMessageSent($result));
         }
 
+
         if ($result) {
-            return response()->json(['data' => $result], 201);
+            $message = Message::find($result->id); 
+            return response()->json(['data' => $data], 201);
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
@@ -61,7 +64,9 @@ class MessageController extends Controller
                 return $query->where('messagable_type', 'trek')
                     ->whereIn('messagable_id', $treks);
             })
-            // ->groupBy(['sender_id','messagable_type', 'messagable_id','id','message','sender_id','created_at','updated_at'])
+            // ->leftJoin('messages_seen','messages.id','messages_seen.message_id')
+            ->select(['*', DB::raw('COUNT(*) AS message_count')])
+            ->groupBy(['messagable_type', 'messagable_id'])
             ->orderBy('id', 'DESC');
         $data = $query->paginate(15);
         $data = new MessageCollection($data);

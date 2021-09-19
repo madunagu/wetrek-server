@@ -18,7 +18,7 @@ class UserController extends Controller
 
     public function user(Request $request)
     {
-        $user = User::with(['locations','picture'])->withCount(['followers','following'])->find(Auth::id());
+        $user = User::with(['locations', 'picture'])->withCount(['followers', 'following'])->find(Auth::id());
         return response()->json($user, 200);
     }
 
@@ -53,6 +53,29 @@ class UserController extends Controller
 
         return response()->json(['success' => false, 'error' => 'incorrect username or password'], 401);
     }
+
+
+    public function list(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'q' => 'nullable|string'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+
+        $query = $request['q'];
+        $users = User::with(['locations', 'picture'])->withCount(['followers', 'following']); //TODO: add chat group and map data
+        if ($query) {
+            $users = $users->search($query);
+        }
+        //here insert search parameters and stuff
+        $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
+        $users = $users->paginate($length);
+        $data = new DefaultCollection($users);
+        return response()->json($data);
+    }
+
 
     public function register(Request $request)
     {

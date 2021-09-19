@@ -10,6 +10,7 @@ class Trek extends Model
 {
     protected $fillable = ['name', 'description', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
     protected $with = ['picture', 'startAddress', 'endAddress'];
+    protected $casts = ['start_address_id' => 'integer', 'end_address_id' => 'integer'];
 
     public function locations()
     {
