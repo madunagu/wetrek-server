@@ -6,6 +6,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
+
 
 class User extends Authenticatable
 {
@@ -37,7 +39,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    protected $with = ['picture','location'];
+    protected $with = ['picture', 'location'];
 
 
     public function following()
@@ -53,11 +55,13 @@ class User extends Authenticatable
     public function picture()
     {
         return $this->morphOne('App\Image', 'imageable')->withDefault([
-            'large'=>'https://picsum.photos/500',
-            'medium'=>'https://picsum.photos/200',
-            'small'=>'https://picsum.photos/100',
-            'full'=>'https://picsum.photos/200',
+            'large' => 'https://picsum.photos/500',
+            'medium' => 'https://picsum.photos/200',
+            'small' => 'https://picsum.photos/100',
+            'full' => 'https://picsum.photos/200',
             'user_id' => 1,
+            'created_at' => Carbon::now(),
+            'updated_at' =>  Carbon::now(),
         ]);
     }
 
@@ -74,8 +78,8 @@ class User extends Authenticatable
     public function location()
     {
         return $this->hasOne('App\Location')->withDefault([
-            'lat'=>1,
-            'lng'=>1,
+            'lat' => 1,
+            'lng' => 1,
             'user_id' => 1,
         ])->take(1);
     }
