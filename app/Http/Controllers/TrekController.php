@@ -35,8 +35,8 @@ class TrekController extends Controller
 
         $data = collect($request->all())->toArray();
         $data['user_id'] = Auth::user()->id;
-        $startAddress = Address::create($request['start_address']);
-        $endAddress = Address::create($request['end_address']);
+        $startAddress = Address::create(json_decode($request['start_address'], true));
+        $endAddress = Address::create(json_decode($request['end_address'], true));
         $data['start_address_id'] = $startAddress->id;
         $data['end_address_id'] = $endAddress->id;
         $result = Trek::create($data);
