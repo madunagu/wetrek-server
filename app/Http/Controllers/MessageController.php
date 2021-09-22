@@ -64,6 +64,7 @@ class MessageController extends Controller
                 return $query->where('messagable_type', 'trek')
                     ->whereIn('messagable_id', $treks);
             })
+            ->orWhere(['sender_id' => $user->id, 'messagable_type' => 'user'])
             // ->leftJoin('messages_seen','messages.id','messages_seen.message_id')
             ->select(['*', DB::raw('COUNT(*) AS message_count')])
             ->groupBy(['messagable_type', 'messagable_id'])

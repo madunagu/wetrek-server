@@ -12,9 +12,6 @@ use App\Trek;
 use App\Http\Resources\TrekCollection;
 use App\Address;
 use App\Location;
-use App\Notifications\TrekStarting;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Redis;
 
 class TrekController extends Controller
 {
