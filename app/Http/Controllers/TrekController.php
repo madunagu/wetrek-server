@@ -12,6 +12,7 @@ use App\Trek;
 use App\Http\Resources\TrekCollection;
 use App\Address;
 use App\Location;
+use Carbon\Carbon;
 
 class TrekController extends Controller
 {
@@ -97,18 +98,23 @@ class TrekController extends Controller
     public function list(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'q' => 'nullable|string'
+            'q' => 'nullable|string',
+            'p' => 'nullable|string',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
-
         $query = $request['q'];
-        $treks = Trek::where([])->withCount(['users']); //TODO: add chat group and map data
+        $postDatedTreks = !empty($request['p']);
+        if ($postDatedTreks) {
+            $timeNow = Carbon::now();
+            $treks = Trek::where(['starting_at', '>', $timeNow])->withCount(['users']); //TODO: add chat group and map data
+        } else {
+            $treks = Trek::withCount(['users']);
+        }
         if ($query) {
             $treks = $treks->search($query);
         }
-        //here insert search parameters and stuff
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
         $treks = $treks->paginate($length);
         $data = new TrekCollection($treks);

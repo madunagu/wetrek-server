@@ -48,7 +48,7 @@ class MessageController extends Controller
 
         if ($result) {
             $message = Message::find($result->id); 
-            return response()->json(['data' => $data], 201);
+            return response()->json(['data' => $message], 201);
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
