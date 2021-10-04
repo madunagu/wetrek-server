@@ -47,7 +47,7 @@ class MessageController extends Controller
 
 
         if ($result) {
-            $message = Message::find($result->id); 
+            $message = Message::find($result->id);
             return response()->json(['data' => $message], 201);
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
@@ -83,7 +83,8 @@ class MessageController extends Controller
         if ($isTrekGroup) {
             $query = Message::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
         } else {
-            $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id]);
+            $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id])
+                ->orWhere(['sender_id' => $userId, 'messagable_type' => 'user', 'messagable_id' => $id,]);
         }
         $query = $query->orderBy('id', 'DESC');
         $data = $query->paginate($length);
