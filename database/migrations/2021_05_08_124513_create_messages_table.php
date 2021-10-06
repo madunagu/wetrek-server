@@ -18,6 +18,7 @@ class CreateMessagesTable extends Migration
             $table->text('message');
             $table->integer('sender_id');
             $table->integer('messagable_id')->nullable();
+            $table->integer('grouper')->nullable();
             $table->string('messagable_type')->nullable();
             $table->timestamps();
         });

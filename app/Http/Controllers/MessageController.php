@@ -26,9 +26,12 @@ class MessageController extends Controller
             return response()->json($validator->messages(), 422);
         }
 
+        $user = Auth::user();
         $data = collect($request->all())->toArray();
-        $data['sender_id'] = Auth::user()->id;
+        $data['sender_id'] = $user->id;
         $data['messagable_id'] = $data['to'];
+        $grouper = min((int)$user->id, (int)$request['to']) . max((int)$user->id, (int)$request['to']);
+        $data['grouper'] = $grouper;
         // $data['reciever_id'] = (int)$request->route('id');
         if (!empty($data['is_group'])) {
             $data['messagable_type'] = 'trek';
@@ -67,7 +70,7 @@ class MessageController extends Controller
             ->orWhere(['sender_id' => $user->id, 'messagable_type' => 'user'])
             // ->leftJoin('messages_seen','messages.id','messages_seen.message_id')
             ->select(['*', DB::raw('COUNT(*) AS message_count')])
-            ->groupBy(['messagable_type', 'messagable_id'])
+            ->groupBy(['messagable_type', 'grouper'])
             ->orderBy('id', 'DESC');
         $data = $query->paginate(15);
         $data = new MessageCollection($data);
@@ -76,15 +79,15 @@ class MessageController extends Controller
 
     public function list(Request $request)
     {
-        $id = (int)$request->input('chat_id');
-        $isTrekGroup = (bool)$request['is_group'];
+        $id = (int)$request->input('id');
+        $isTrekGroup = (bool)$request->input('is_group');
         $userId = Auth::id();
-        $length = (int)$request['length'] ?? 15;
+        $length = (int)$request->input('length') ?? 15;
         if ($isTrekGroup) {
             $query = Message::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
         } else {
             $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id])
-                ->orWhere(['sender_id' => $userId, 'messagable_type' => 'user', 'messagable_id' => $id,]);
+                ->orWhere(['messagable_id' => $id, 'sender_id' => $userId, 'messagable_type' => 'user']);
         }
         $query = $query->orderBy('id', 'DESC');
         $data = $query->paginate($length);

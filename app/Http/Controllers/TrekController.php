@@ -38,7 +38,7 @@ class TrekController extends Controller
         $data['start_address_id'] = $startAddress->id;
         $data['end_address_id'] = $endAddress->id;
         $result = Trek::create($data);
-        //create event emmiter or reminder or notifications for those who may be interested
+        //TODO: create event emmiter or reminder or notifications for those who may be interested
 
         if ($result) {
             return response()->json(['data' => true], 201);
