@@ -86,8 +86,20 @@ class MessageController extends Controller
         if ($isTrekGroup) {
             $query = Message::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
         } else {
-            $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id])
-                ->orWhere(['messagable_id' => $id, 'sender_id' => $userId, 'messagable_type' => 'user']);
+            $query = Message::where(function ($query) use ($userId, $id) {
+                //for recieved messages
+                return $query
+                    ->where('messagable_type', '=', 'user')
+                    ->where('messagable_id', '=', $userId)
+                    ->where('sender_id', '=', $id);
+            })
+                ->orWhere(function ($query)  use ($userId, $id) {
+                    // for sent messages
+                    return $query
+                        ->where('messagable_type', '=', 'user')
+                        ->where('messagable_id', '=', $id)
+                        ->where('sender_id', '=', $userId);
+                });
         }
         $query = $query->orderBy('id', 'DESC');
         $data = $query->paginate($length);
