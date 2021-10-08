@@ -30,7 +30,7 @@ class MessageController extends Controller
         $data = collect($request->all())->toArray();
         $data['sender_id'] = $user->id;
         $data['messagable_id'] = $data['to'];
-        $grouper = min((int)$user->id, (int)$request['to']) . max((int)$user->id, (int)$request['to']);
+        $grouper = min((int)$user->id, (int)$request['to']) ."". max((int)$user->id, (int)$request['to']);
         $data['grouper'] = $grouper;
         // $data['reciever_id'] = (int)$request->route('id');
         if (!empty($data['is_group'])) {
@@ -61,18 +61,29 @@ class MessageController extends Controller
     {
         $length = (int)$request['length'];
         $user = User::with('treks')->find(Auth::id());
+        $userId = $user->id;
         $treks = $user->treks->pluck('id');
-        $query = Message::where(['messagable_id' => $user->id, 'messagable_type' => 'user'])
-            ->orWhere(function (Builder $query) use ($treks) {
-                return $query->where('messagable_type', 'trek')
-                    ->whereIn('messagable_id', $treks);
+        $query = Message::where(function (Builder $query) use ($treks) {
+            return $query->where('messagable_type', 'trek')
+                ->whereIn('messagable_id', $treks);
+        })
+            ->orWhere(function ($query) use ($userId) {
+                //for recieved messages
+                return $query
+                    ->where('messagable_type', '=', 'user')
+                    ->where('messagable_id', '=', $userId);
             })
-            ->orWhere(['sender_id' => $user->id, 'messagable_type' => 'user'])
+            ->orWhere(function ($query) use ($userId) {
+                //for sent messages
+                return $query
+                    ->where('messagable_type', '=', 'user')
+                    ->where('sender_id', '=', $userId);
+            })
             // ->leftJoin('messages_seen','messages.id','messages_seen.message_id')
             ->select(['*', DB::raw('COUNT(*) AS message_count')])
             ->groupBy(['messagable_type', 'grouper'])
             ->orderBy('id', 'DESC');
-        $data = $query->paginate(15);
+        $data = $query->paginate($length);
         $data = new MessageCollection($data);
         return response()->json($data);
     }
