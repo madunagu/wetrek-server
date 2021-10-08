@@ -30,8 +30,7 @@ class MessageController extends Controller
         $data = collect($request->all())->toArray();
         $data['sender_id'] = $user->id;
         $data['messagable_id'] = $data['to'];
-        $grouper = min((int)$user->id, (int)$request['to']) ."". max((int)$user->id, (int)$request['to']);
-        $data['grouper'] = $grouper;
+        $data['grouper']  = min($user->id, $request['to']) ."". max($user->id, $request['to']);
         // $data['reciever_id'] = (int)$request->route('id');
         if (!empty($data['is_group'])) {
             $data['messagable_type'] = 'trek';
