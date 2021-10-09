@@ -43,7 +43,8 @@ class TrekController extends Controller
 
       
         if ($result) {
-            return response()->json(['data' => $result], 201);
+            $trek = Trek::find($result->id);
+            return response()->json(['data' => $trek], 201);
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
