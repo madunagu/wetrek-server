@@ -15,4 +15,9 @@ class Address extends Model
         'reference', 'geometry',
         'types', 'user_id',
     ];
+    protected $searchable = [
+        'columns' => [
+            'addresses.description' => 10,
+        ],
+    ];
 }

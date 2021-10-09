@@ -52,4 +52,18 @@ class Trek extends Model
             'updated_at' =>  Carbon::now(),
         ]);;
     }
+
+    protected $searchable = [
+        'columns' => [
+            'treks.description' => 10,
+            'treks.name' => 10,
+            'treks.direction' => 2,
+            // 'users.email' => 5,
+            // 'posts.title' => 2,
+            // 'posts.body' => 1,
+        ],
+        // 'joins' => [
+        //     'posts' => ['users.id','posts.user_id'],
+        // ],
+    ];
 }

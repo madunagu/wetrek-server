@@ -26,4 +26,9 @@ class Message extends Model
     {
         return $this->belongsTo('App\User', 'sender_id');
     }
+    protected $searchable = [
+        'columns' => [
+            'messages.message' => 10,
+        ],
+    ];
 }

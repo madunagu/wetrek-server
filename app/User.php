@@ -89,4 +89,17 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Trek', 'trek_user', 'user_id', 'trek_id');
     }
+
+    protected $searchable = [
+        'columns' => [
+            'users.name' => 10,
+            'users.email' => 5,
+            // 'users.email' => 5,
+            // 'posts.title' => 2,
+            // 'posts.body' => 1,
+        ],
+        // 'joins' => [
+        //     'posts' => ['users.id','posts.user_id'],
+        // ],
+    ];
 }
