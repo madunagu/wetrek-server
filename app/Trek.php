@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class Trek extends Model
 {
     use SearchableTrait;
-    
+
     protected $fillable = ['name', 'description', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
     protected $with = ['picture', 'startAddress', 'endAddress'];
     protected $casts = ['start_address_id' => 'integer', 'end_address_id' => 'integer'];
@@ -21,7 +21,7 @@ class Trek extends Model
 
     public function users()
     {
-        return $this->belongsToMany('App\User', 'trek_user', 'user_id');
+        return $this->belongsToMany('App\User', 'trek_user', 'user_id', 'trek_id');
     }
 
     public function startAddress()

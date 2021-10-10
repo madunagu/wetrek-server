@@ -41,7 +41,7 @@ class TrekController extends Controller
         $result = Trek::create($data);
         //TODO: create event emmiter or reminder or notifications for those who may be interested
 
-      
+
         if ($result) {
             $trek = Trek::find($result->id);
             return response()->json(['data' => $trek], 201);
@@ -130,18 +130,12 @@ class TrekController extends Controller
         $id = (int)$request->route('id');
         $user = Auth::user();
         $trek = Trek::find($id);
-        $trek->users()->attach([
-            1 => [
-                'trek_id' => $id,
-                'user_id' => $user->id,
-                // 'confirmed' => true
-            ]
-        ]);
-        //TODO change database time to php time here
+        $attached = $trek->users()->toggle([$user->id]);
+        //TODO: change database time to php time here
         $when = $trek->starting_at;
         // Notification::send($user, (new TrekStarting($trek))->delay($when));
         return response()->json([
-            'data' => true
+            'data' => !empty($attached['attached'])
         ], 200);
     }
 
