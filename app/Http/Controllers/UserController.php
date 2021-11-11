@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\Trek;
 use App\Http\Resources\DefaultCollection;
 use Validator;
 
@@ -58,19 +59,35 @@ class UserController extends Controller
     public function list(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'q' => 'nullable|string'
+            'q' => 'nullable|string',
+            'followers' => 'nullable|numeric',
+            'following' => 'nullable|numeric',
+            'trek' => 'nullable|numeric',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
 
         $query = $request['q'];
+        $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
+
+        $followersOfId = $request['followers']?? $request['following'];
+        $trekId = $request['trek'];
+
         $users = User::with(['locations', 'picture'])->withCount(['followers', 'following']); //TODO: add chat group and map data
         if ($query) {
             $users = $users->search($query);
         }
+        if (!empty($request['followers'])) {
+            $users = User::find($followersOfId)->followers();
+        }
+        else if (!empty($request['following'])) {
+            $users = User::find($followersOfId)->following();
+        }
+        else if (!empty($request['trek'])) {
+            $users = Trek::find($trekId)->users();
+        }
         //here insert search parameters and stuff
-        $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
         $users = $users->paginate($length);
         $data = new DefaultCollection($users);
         return response()->json($data);
@@ -107,34 +124,12 @@ class UserController extends Controller
         //$credentials['is_verified'] = 1;
     }
 
-    public function followers(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'q' => 'nullable|string'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->messages(), 422);
-        }
-
-        $user_id = Auth::id();
-
-        $query = $request['q'];
-        $users = User::where([]); //TODO: add chat group and map data
-        if ($query) {
-            $users = $users->search($query);
-        }
-        //here insert search parameters and stuff
-        $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
-        $treks = $users->paginate($length);
-        $data = new DefaultCollection($treks);
-        return response()->json($data);
-    }
 
     public function follow(Request $request)
     {
         $following_id = $request->route('id');
         $user = Auth::user();
-        $user->followers()->toggle([$following_id]);
+        $user->following()->toggle([$following_id]);
         return response()->json(['success' => true]);
     }
 

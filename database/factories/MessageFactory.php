@@ -17,3 +17,8 @@ $factory->define(Message::class, function (Faker $faker) {
         'grouper' => min($sender_id, $messagable_id) . max($sender_id, $messagable_id),
     ];
 });
+
+
+$factory->state(Message::class, 'trek', [
+    'messagable_type' => 'trek',
+]);

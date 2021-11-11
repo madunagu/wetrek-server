@@ -13,6 +13,8 @@ class TrekSeeder extends Seeder
     public function run()
     {
         Trek::truncate();
-        factory(Trek::class, 20)->create();
+        factory(Trek::class, 20)
+            // ->hasPosts(1)
+            ->create();
     }
 }

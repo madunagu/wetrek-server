@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 // use Illuminate\Validation\Validator;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Validator;
 
 use App\Trek;
@@ -31,14 +32,16 @@ class TrekController extends Controller
             return response()->json($validator->messages(), 422);
         }
 
+        $userId =  Auth::user()->id;
         $data = collect($request->all())->toArray();
-        $data['user_id'] = Auth::user()->id;
+        $data['user_id'] = $userId;
         $startAddress = Address::create($request['start_address']);
         $endAddress = Address::create($request['end_address']);
         $data['start_address_id'] = $startAddress->id;
         $data['end_address_id'] = $endAddress->id;
         $data['direction'] = json_encode($request['directions']);
         $result = Trek::create($data);
+        $creatorAttending = $result->users->toggle([$userId]);
         //TODO: create event emmiter or reminder or notifications for those who may be interested
 
 
@@ -87,7 +90,9 @@ class TrekController extends Controller
     public function get(Request $request)
     {
         $id = (int)$request->route('id');
+        $user = Auth::user();
         if ($event = Trek::find($id)) {
+            $event->is_attending = $user->treks->pluck('id')->contains($event->id);
             return response()->json([
                 'data' => $event
             ], 200);
@@ -102,16 +107,19 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'q' => 'nullable|string',
-            'p' => 'nullable|string',
+            'post_dated' => 'nullable|string',
+            'attended' => 'nullable|string',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
         $query = $request['q'];
-        $postDatedTreks = !empty($request['p']);
-        if ($postDatedTreks) {
+        if (!empty($request['post_dated'])) {
             $timeNow = Carbon::now();
             $treks = Trek::where(['starting_at', '>', $timeNow])->withCount(['users']); //TODO: add chat group and map data
+        } else if (!empty($request['attended'])) {
+            $user = Auth::user();
+            $treks = $user->treks()->withCount(['users']);
         } else {
             $treks = Trek::withCount(['users']);
         }
@@ -119,6 +127,7 @@ class TrekController extends Controller
             $treks = $treks->search($query);
         }
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
+        $treks = $treks->orderBy('starting_at', 'DESC');
         $treks = $treks->paginate($length);
         $data = new TrekCollection($treks);
         return response()->json($data);
@@ -143,7 +152,6 @@ class TrekController extends Controller
 
     public function updateLocation(Request $request)
     {
-
         $id = (int)$request->route('id');
         $validator = Validator::make($request->all(), [
             'user_id' => 'integer|required|exists:user,id',
