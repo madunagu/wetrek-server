@@ -41,7 +41,12 @@ class TrekController extends Controller
         $data['end_address_id'] = $endAddress->id;
         $data['direction'] = json_encode($request['directions']);
         $result = Trek::create($data);
-        $creatorAttending = $result->users->toggle([$userId]);
+
+        // $creatorAttending = $result->users()->toggle([$userId]);
+        $creatorAttending = DB::table('trek_user')->firstOrCreate(
+            ['user_id' => $userId, 'trek_id' => $result->id],
+            ['confirmed_at' => Carbon::now()]
+        );
         //TODO: create event emmiter or reminder or notifications for those who may be interested
 
 

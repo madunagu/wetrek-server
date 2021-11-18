@@ -7,18 +7,22 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Trek;
+
 class TrekStarting extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    private Trek $trek;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($trek)
     {
-        //
+        $this->trek = $trek;
     }
 
     /**
@@ -29,7 +33,7 @@ class TrekStarting extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -41,9 +45,11 @@ class TrekStarting extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line($this->trek->name . ' Is Starting Soon')
+            ->line($this->trek->name . ' Scheduled to take place at ' . $this->trek->starting_at . ' is starting soon')
+            // ->line('Trek starts from'. $this->trek->starting_at. ' is starting soon')
+            // ->action($this->offerData['offerText'], $this->offerData['offerUrl'])
+            ->line('thanks');
     }
 
     /**
