@@ -43,10 +43,10 @@ class TrekController extends Controller
         $result = Trek::create($data);
 
         // $creatorAttending = $result->users()->toggle([$userId]);
-        $creatorAttending = DB::table('trek_user')->firstOrCreate(
-            ['user_id' => $userId, 'trek_id' => $result->id],
-            ['confirmed_at' => Carbon::now()]
-        );
+        $creatorAttending = DB::table('trek_user')->where(['user_id' => $userId, 'trek_id' => $result->id]);
+        if (empty($creatorAttending)) {
+            DB::table('trek_user')->create(['user_id' => $userId, 'trek_id' => $result->id, 'confirmed_at' => Carbon::now()]);
+        }
         //TODO: create event emmiter or reminder or notifications for those who may be interested
 
 
