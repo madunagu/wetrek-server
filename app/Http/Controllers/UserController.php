@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Trek;
 use App\Http\Resources\DefaultCollection;
+use App\Notifications\TrekStarting;
+use Illuminate\Sup\Notification;
 use Validator;
 
 class UserController extends Controller
@@ -130,6 +132,7 @@ class UserController extends Controller
         $following_id = $request->route('id');
         $user = Auth::user();
         $user->following()->toggle([$following_id]);
+        $user->notify(new TrekStarting(Trek::find(1)));
         return response()->json(['success' => true]);
     }
 

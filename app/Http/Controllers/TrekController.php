@@ -13,7 +13,9 @@ use App\Trek;
 use App\Http\Resources\TrekCollection;
 use App\Address;
 use App\Location;
+use App\Notifications\TrekStarting;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 
 class TrekController extends Controller
 {
@@ -32,9 +34,9 @@ class TrekController extends Controller
             return response()->json($validator->messages(), 422);
         }
 
-        $userId =  Auth::user()->id;
+        $user =  Auth::user();
         $data = collect($request->all())->toArray();
-        $data['user_id'] = $userId;
+        $data['user_id'] = $user->id;
         $startAddress = Address::create($request['start_address']);
         $endAddress = Address::create($request['end_address']);
         $data['start_address_id'] = $startAddress->id;
@@ -43,12 +45,12 @@ class TrekController extends Controller
         $result = Trek::create($data);
 
         // $creatorAttending = $result->users()->toggle([$userId]);
-        $creatorAttending = DB::table('trek_user')->where(['user_id' => $userId, 'trek_id' => $result->id]);
+        $creatorAttending = DB::table('trek_user')->where(['user_id' => $user->id, 'trek_id' => $result->id]);
         if (empty($creatorAttending)) {
-            DB::table('trek_user')->create(['user_id' => $userId, 'trek_id' => $result->id, 'confirmed_at' => Carbon::now()]);
+            DB::table('trek_user')->create(['user_id' => $user->id, 'trek_id' => $result->id, 'confirmed_at' => Carbon::now()]);
         }
         //TODO: create event emmiter or reminder or notifications for those who may be interested
-
+        // Notification::send($user, new TrekStarting($result));
 
         if ($result) {
             $trek = Trek::find($result->id);

@@ -2,36 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GroupMessageSent;
-use App\Events\PrivateMessageSent;
-use App\Http\Resources\MessageCollection;
 use App\Message;
 use App\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
-class MessageController extends Controller
+class NotificationController extends Controller
 {
 
 
     public function list(Request $request)
     {
-        $id = (int)$request->input('chat_id');
-        $isTrekGroup = (bool)$request['is_group'];
         $userId = Auth::id();
         $length = (int)$request['length'] ?? 15;
-        if ($isTrekGroup) {
-            $query = Message::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
-        } else {
-            $query = Message::where(['messagable_id' => $userId, 'messagable_type' => 'user', 'sender_id' => $id]);
-        }
-        $query = $query->orderBy('id', 'DESC');
-        $data = $query->paginate($length);
-        $data = new MessageCollection($data);
-        return response()->json($data);
+        $user = User::find($userId);
+
+        $result = $user->notifications;
+        // $query = Notification::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
+        // $query = $query->orderBy('id', 'DESC');
+        // $data = $query->paginate($length);
+        // $data = new MessageCollection($data);
+        return response()->json($result);
     }
 
 

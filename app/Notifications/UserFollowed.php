@@ -7,22 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-use App\Trek;
 
-class TrekStarting extends Notification implements ShouldQueue
+class UserFollowed extends Notification
 {
     use Queueable;
-
-    private Trek $trek;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($trek)
+    public function __construct()
     {
-        $this->trek = $trek;
+        //
     }
 
     /**
@@ -45,11 +42,9 @@ class TrekStarting extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->line($this->trek->name . ' Is Starting Soon')
-            ->line($this->trek->name . ' Scheduled to take place at ' . $this->trek->starting_at . ' is starting soon')
-            // ->line('Trek starts from'. $this->trek->starting_at. ' is starting soon')
-            // ->action($this->offerData['offerText'], $this->offerData['offerUrl'])
-            ->line('thanks');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -61,11 +56,11 @@ class TrekStarting extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            'object_id' => $this->trek->id,
-            'object_type' => 'trek',
-            'messagable' => $this->trek,
-            'reccuring' => true,
-            'body' =>  $this->trek->name . ' is starting soon get ready'
+            'object_id' => $this->user->id,
+            'body' => $this->user->id . ' just followed you',
+            'messagable' => $this->user,
+            'object_type' => 'user',
+            'reccuring' => false,
         ];
     }
 }

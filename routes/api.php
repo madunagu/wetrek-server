@@ -46,4 +46,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/chats', 'MessageController@chats');
     // Route::put('/messages/{id}', 'MessageController@update');
     Route::delete('/messages/{id}', 'MessageController@delete');
+
+    Route::get('/notifications', 'NotificationController@list');
+
 });
