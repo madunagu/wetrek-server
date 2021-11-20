@@ -16,13 +16,8 @@ class NotificationController extends Controller
         $userId = Auth::id();
         $length = (int)$request['length'] ?? 15;
         $user = User::find($userId);
-
         $result = $user->notifications;
-        // $query = Notification::where(['messagable_id' => $id, 'messagable_type' => 'trek']);
-        // $query = $query->orderBy('id', 'DESC');
-        // $data = $query->paginate($length);
-        // $data = new MessageCollection($data);
-        return response()->json($result);
+        return response()->json(['data' => $result]);
     }
 
 
