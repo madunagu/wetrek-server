@@ -8,7 +8,8 @@ use App\User;
 use App\Trek;
 use App\Http\Resources\DefaultCollection;
 use App\Notifications\TrekStarting;
-use Illuminate\Sup\Notification;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Validator;
 
 class UserController extends Controller
@@ -45,7 +46,9 @@ class UserController extends Controller
         //$credentials['is_verified'] = 1;
         if ($this->attemptLogin($credentials)) {
             $user = $this->guard()->user();
+            $user->notifications_count = $user->unreadNotifications->count();
             $token = $user->createToken('devotion')->accessToken;
+            $user->makeHidden('unreadNotifications'); 
 
             return response()->json([
                 'user' => $user,
@@ -73,20 +76,23 @@ class UserController extends Controller
         $query = $request['q'];
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
 
-        $followersOfId = $request['followers']?? $request['following'];
+        $followersOfId = $request['followers'] ?? $request['following'];
         $trekId = $request['trek'];
+        $userId = Auth::id();
 
-        $users = User::with(['locations', 'picture'])->withCount(['followers', 'following']); //TODO: add chat group and map data
+        $users = User::with(['locations', 'picture'])->withCount(['followers', 'following'])
+            ->withCount(['isFollowing' => function (Builder $query) use ($userId) {
+                $query->where('follower_id', $userId);
+            }]);
+        //TODO: add chat group and map data
         if ($query) {
             $users = $users->search($query);
         }
         if (!empty($request['followers'])) {
             $users = User::find($followersOfId)->followers();
-        }
-        else if (!empty($request['following'])) {
+        } else if (!empty($request['following'])) {
             $users = User::find($followersOfId)->following();
-        }
-        else if (!empty($request['trek'])) {
+        } else if (!empty($request['trek'])) {
             $users = Trek::find($trekId)->users();
         }
         //here insert search parameters and stuff

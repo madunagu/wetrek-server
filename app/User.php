@@ -48,6 +48,12 @@ class User extends Authenticatable
         return $this->belongsToMany('App\User', 'followers', 'follower_id', 'following_id')->whereKeyNot(1);
     }
 
+    public function isFollowing()
+    {
+        return $this->belongsToMany('App\User', 'followers', 'following_id', 'follower_id')->whereKeyNot(1);
+    }
+
+
     public function followers()
     {
         return $this->belongsToMany('App\User', 'followers', 'following_id', 'follower_id')->whereKeyNot(1);

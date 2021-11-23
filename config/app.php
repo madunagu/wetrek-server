@@ -176,7 +176,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
+        // BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
 
     ],
 
