@@ -15,7 +15,6 @@ class CreateDirectionsTable extends Migration
     {
         Schema::create('directions', function (Blueprint $table) {
             $table->id();            
-            $table->integer('trek_id');
             $table->text('direction');
             $table->timestamps();
         });

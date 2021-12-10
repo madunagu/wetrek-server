@@ -19,8 +19,11 @@ class CreateTreksTable extends Migration
             $table->integer('start_address_id');
             $table->integer('end_address_id');
             $table->string('repeat')->nullable();
-            $table->text('direction')->nullable();
+            // $table->text('direction')->nullable();
+            $table->integer('direction_id');
             $table->dateTime('starting_at')->nullable();
+            $table->double('start_latitude', 14, 8)->nullable();
+            $table->double('start_longitude', 14, 8)->nullable();
             $table->integer('duration')->nullable();
             $table->text('description')->nullable();
             $table->integer('user_id');

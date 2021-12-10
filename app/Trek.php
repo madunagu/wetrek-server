@@ -10,13 +10,27 @@ class Trek extends Model
 {
     use SearchableTrait;
 
-    protected $fillable = ['name', 'description', 'start_address_id', 'end_address_id', 'direction', 'starting_at', 'user_id'];
-    protected $with = ['picture', 'startAddress', 'endAddress','users'];
+    protected $fillable = ['name', 'description', 'start_address_id', 'end_address_id', 'starting_at', 'user_id'];
+    protected $with = ['picture', 'startAddress', 'endAddress', 'users'];
     protected $casts = ['start_address_id' => 'integer', 'end_address_id' => 'integer'];
 
-    public function locations()
+    // public function locations()
+    // {
+    //     return $this->belongsToMany('App\Location', 'location_trek', 'location_id');
+    // }
+
+    public function location()
     {
-        return $this->belongsToMany('App\Location', 'location_trek', 'location_id');
+        $starting_at = Carbon::parse($this->starting_at);
+        $ending_at = $starting_at->addSeconds($this->duration);
+        $now = Carbon::now();
+        if ($now >= $starting_at && $now <= $ending_at) {
+            $lat = $this->users()->with('position')->pluck('latitude')->collect()->median();
+            $lng = $this->users()->with('position')->pluck('longitude')->collect()->median();
+            return ['lat' => $lat, 'lng' => $lng];
+        }
+
+        return ['lat' => $this->start_latitude, 'lng' => $this->start_longitude];
     }
 
     public function users()
@@ -32,6 +46,11 @@ class Trek extends Model
     public function endAddress()
     {
         return $this->hasOne('App\Address', 'id', 'end_address_id');
+    }
+
+    public function direction()
+    {
+        return $this->belongsTo('App\MapDirection', 'direction_id', 'id');
     }
 
     public function pictures()
