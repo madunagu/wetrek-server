@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 
 use App\Address;
+use App\Http\Resources\DefaultCollection;
 
 class AddressController extends Controller
 {
@@ -108,12 +109,15 @@ class AddressController extends Controller
     {
 
         $query = (string) $request['q'];
-        $addresses = Address::with([]); //TODO: add chat group and map data
+        $lat = $request['lat'];
+        $lng = $request['lng'];
+        $addresses = Address::with(['treks']); //TODO: add chat group and map data
         if ($query) {
             $addresses = $addresses->search($query);
         }
         $length = (int)(empty($request['perPage']) ? 15 : $request['perPage']);
         $data = $addresses->paginate($length);
+        $data = new DefaultCollection($data);
         return response()->json(compact('data'));
     }
 
@@ -130,5 +134,26 @@ class AddressController extends Controller
                 'data' => false
             ], 404);
         }
+    }
+
+    function haversineGreatCircleDistance(
+        $latitudeFrom,
+        $longitudeFrom,
+        $latitudeTo,
+        $longitudeTo,
+        $earthRadius = 6371000
+    ) {
+        // convert from degrees to radians
+        $latFrom = deg2rad($latitudeFrom);
+        $lonFrom = deg2rad($longitudeFrom);
+        $latTo = deg2rad($latitudeTo);
+        $lonTo = deg2rad($longitudeTo);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+        return $angle * $earthRadius; //meters
     }
 }

@@ -20,4 +20,9 @@ class Address extends Model
             'addresses.description' => 10,
         ],
     ];
+
+    public function treks()
+    {
+        return $this->hasMany('App\Trek','start_address_id')->take(1);
+    }
 }
