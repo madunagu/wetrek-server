@@ -91,6 +91,11 @@ class User extends Authenticatable
         ])->take(1);
     }
 
+    public function position()
+    {
+        return $this->hasOne('App\Position')->take(1);
+    }
+
     public function setting()
     {
         return $this->hasMany('App\Setting');
@@ -98,7 +103,8 @@ class User extends Authenticatable
 
     public function treks()
     {
-        return $this->belongsToMany('App\Trek', 'trek_user', 'user_id', 'trek_id');
+
+        return $this->belongsToMany('App\Trek', 'trek_user', 'trek_id', 'user_id');
     }
 
     protected $searchable = [

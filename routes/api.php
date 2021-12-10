@@ -49,4 +49,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/notifications', 'NotificationController@list');
 
+    Route::post('/position', 'TrekController@updatePosition');
+
 });

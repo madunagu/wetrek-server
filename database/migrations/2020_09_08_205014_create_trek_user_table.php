@@ -17,7 +17,9 @@ class CreateTrekUserTable extends Migration
             $table->id();
             $table->integer('trek_id');
             $table->integer('user_id');
-            $table->dateTime('confirmed_at')->nullable();
+            $table->string('status')->default('registered'); //registered,started, moving, unavailable
+            $table->dateTime('moved_at')->nullable();
+            $table->dateTime('ended_at')->nullable();
             $table->timestamps();
         });
     }

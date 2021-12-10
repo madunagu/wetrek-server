@@ -13,7 +13,9 @@ use App\Trek;
 use App\Http\Resources\TrekCollection;
 use App\Address;
 use App\Location;
+use App\MapDirection;
 use App\Notifications\TrekStarting;
+use App\Position;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 
@@ -41,7 +43,11 @@ class TrekController extends Controller
         $endAddress = Address::create($request['end_address']);
         $data['start_address_id'] = $startAddress->id;
         $data['end_address_id'] = $endAddress->id;
-        $data['direction'] = json_encode($request['directions']);
+        $data['start_longitude'] = $request['directions']['routes']['legs'][0]['start_location']['lat'];
+        $data['start_latitude'] = $request['directions']['routes']['legs'][0]['start_location']['lng'];
+        $directionData = json_encode($request['directions']);
+        $direction = MapDirection::create(['direction'=> $directionData]);
+        $data['direction_id'] = $direction->id;
         $result = Trek::create($data);
 
         // $creatorAttending = $result->users()->toggle([$userId]);
@@ -98,7 +104,7 @@ class TrekController extends Controller
     {
         $id = (int)$request->route('id');
         $user = Auth::user();
-        if ($event = Trek::find($id)) {
+        if ($event = Trek::with(['direction'])->find($id)) {
             $event->is_attending = $user->treks->pluck('id')->contains($event->id);
             return response()->json([
                 'data' => $event
@@ -157,28 +163,83 @@ class TrekController extends Controller
 
 
 
-    public function updateLocation(Request $request)
+    public function updatePosition(Request $request)
     {
-        $id = (int)$request->route('id');
         $validator = Validator::make($request->all(), [
-            'user_id' => 'integer|required|exists:user,id',
-            'lon' => 'string|required|max:255',
-            'lat' => 'nullable|integer',
+            'longitude' => 'numeric|required|max:255',
+            'latitude' => 'numeric|required|max:255',
+            'timestamp' => 'numeric|required|max:255',
+            'accuracy' => 'numeric|required|max:255',
+            'altitude' => 'numeric|required|max:255',
+            'heading' => 'numeric|required|max:255',
+            'speed' => 'numeric|required|max:255',
+            'speed_accuracy' => 'numeric|required|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), 422);
         }
         $data = collect($request->all())->toArray();
+        $user = Auth::user();
 
-        $trek = Trek::find($id);
+        $data['user_id'] = $user->id;
+        $position = Position::create($data);
+        $active_treks = $user->treks()->wherePivot('status', 'started')->get(); //->pluck('treks.id');
+        // DB::table('trek_user')->where(['user_id' => $user->id])->whereNull('ended_at')
+        //     ->whereIn('trek_id', $trek_ids)->update([
+        //         'status' => 'moving'
+        //     ]);
+        //here update status of trek near location
+        foreach ($active_treks as $trek) {
+            // $lat =$trek->start_latitude;
+            // $lng = $trek->start_longitude;
+            $loc = $trek->location();
+            // $distance = $this->haversineGreatCircleDistance($loc['lat'], $loc['lng'], $data['latitude'], $data['longitude']);
+            if ($this->is_close_enough($loc['lat'], $loc['lng'], $data['latitude'], $data['longitude'])) {
+      
+                $user->treks()->updateExistingPivot($trek->id, [
+                    'status' => 'moving',
+                ]);
+            }
+        }
 
-        $location = Location::create($data);
 
-        $trek->locations()->attach($location->id);
+        //TODO: here perform geofencing operations
+        //step 1: gather all active coordinates --
+        //step 2: fence the coordinates and remove the points far from the center
+        //step 3: find the average of the coordinates 
+        // return collect($data)->median("price"); 
+
         return response()->json([
             'sucess' => true,
+            'data' => $position,
         ]);
+    }
+
+    public function is_close_enough($lat1, $lng1, $lat2, $lng2): bool
+    {
+        return $this->haversineGreatCircleDistance($lat1, $lng1, $lat2, $lng2) < 50; //meters
+    }
+
+    function haversineGreatCircleDistance(
+        $latitudeFrom,
+        $longitudeFrom,
+        $latitudeTo,
+        $longitudeTo,
+        $earthRadius = 6371000
+    ) {
+        // convert from degrees to radians
+        $latFrom = deg2rad($latitudeFrom);
+        $lonFrom = deg2rad($longitudeFrom);
+        $latTo = deg2rad($latitudeTo);
+        $lonTo = deg2rad($longitudeTo);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+        return $angle * $earthRadius; //meters
     }
 
     public function delete(Request $request)

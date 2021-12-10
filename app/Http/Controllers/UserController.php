@@ -48,7 +48,7 @@ class UserController extends Controller
             $user = $this->guard()->user();
             $user->notifications_count = $user->unreadNotifications->count();
             $token = $user->createToken('devotion')->accessToken;
-            $user->makeHidden('unreadNotifications'); 
+            $user->makeHidden('unreadNotifications');
 
             return response()->json([
                 'user' => $user,
@@ -60,6 +60,31 @@ class UserController extends Controller
         return response()->json(['success' => false, 'error' => 'incorrect username or password'], 401);
     }
 
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'integer|required|exists:users,id',
+            'phone' => 'string|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 422);
+        }
+        if ($request['id'] != Auth::id()) {
+            return response()->json(['error' => 'Only this users has permission to update details'], 401);
+        }
+        $id = $request->route('id');
+
+        $data = collect($request->all())->toArray();
+        $result = User::find($id);
+        //obtain longitude and latitude if they werent set
+        $result = $result->update($data);
+        if ($result) {
+            return response()->json(['data' => true], 201);
+        } else {
+            return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
+        }
+    }
 
     public function list(Request $request)
     {
