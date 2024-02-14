@@ -22,8 +22,8 @@ class CreateTreksTable extends Migration
             // $table->text('direction')->nullable();
             $table->integer('direction_id');
             $table->dateTime('starting_at')->nullable();
-            $table->double('start_latitude', 14, 8)->nullable();
-            $table->double('start_longitude', 14, 8)->nullable();
+            $table->double('latitude', 14, 8)->nullable();
+            $table->double('longitude', 14, 8)->nullable();
             $table->integer('duration')->nullable();
             $table->text('description')->nullable();
             $table->integer('user_id');

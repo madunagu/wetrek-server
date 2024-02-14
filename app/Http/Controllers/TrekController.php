@@ -25,8 +25,6 @@ class TrekController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'string|required|max:255',
-            'start_address' => 'required',
-            'end_address' => 'required',
             'directions' => 'required',
             'starting_at' => 'nullable|date',
             'repeat' => 'nullable|string',
@@ -39,12 +37,12 @@ class TrekController extends Controller
         $user =  Auth::user();
         $data = collect($request->all())->toArray();
         $data['user_id'] = $user->id;
-        $startAddress = Address::create($request['start_address']);
-        $endAddress = Address::create($request['end_address']);
-        $data['start_address_id'] = $startAddress->id;
-        $data['end_address_id'] = $endAddress->id;
-        $data['start_longitude'] = $request['directions']['routes']['legs'][0]['start_location']['lat'];
-        $data['start_latitude'] = $request['directions']['routes']['legs'][0]['start_location']['lng'];
+        $data['longitude'] = $request['directions']['routes'][0]['legs'][0]['start_location']['lat'];
+        $data['latitude'] = $request['directions']['routes'][0]['legs'][0]['start_location']['lng'];
+
+
+        $data = $this->createAddressesAndAddIds($request, $data);
+
         $directionData = json_encode($request['directions']);
         $direction = MapDirection::create(['direction'=> $directionData]);
         $data['direction_id'] = $direction->id;
@@ -64,6 +62,34 @@ class TrekController extends Controller
         } else {
             return response()->json(['data' => false, 'errors' => 'unknown error occured'], 400);
         }
+    }
+
+
+    public function createAddressesAndAddIds(Request $request, array $data): array
+    {
+        $startAddress = Address::create([
+            'description'=> $request['directions']['routes'][0]['legs'][0]['start_address'],
+             'place_id'=>$request['directions']['geocoded_waypoints'][0]['place_id'],
+          'user_id'=>$data['user_id'],
+            'latitude'=>$request['directions']['routes'][0]['legs'][0]['start_location']['lat'],
+            'longitude'=>$request['directions']['routes'][0]['legs'][0]['start_location']['lng'],
+            'reference'=>$request['directions']['geocoded_waypoints'][1]['place_id'],
+            'types'=>json_encode($request['directions']['geocoded_waypoints'][0]['types']),
+        ]);
+
+        $endAddress = Address::create([
+            'description'=> $request['directions']['routes'][0]['legs'][0]['end_address'],
+             'place_id'=>$request['directions']['geocoded_waypoints'][1]['place_id'],
+             'user_id'=>$data['user_id'],
+            'latitude'=>$request['directions']['routes'][0]['legs'][0]['end_location']['lat'],
+            'longitude'=>$request['directions']['routes'][0]['legs'][0]['end_location']['lng'],
+            'reference'=>$request['directions']['geocoded_waypoints'][1]['place_id'],
+            'types'=>json_encode($request['directions']['geocoded_waypoints'][1]['types']),
+        ]);
+
+        $data['start_address_id'] = $startAddress->id;
+        $data['end_address_id'] = $endAddress->id;
+        return $data;
     }
 
     public function update(Request $request)
@@ -87,11 +113,12 @@ class TrekController extends Controller
         $user_id = Auth::user()->id;
         $id = $request->route('id');
         $trek = Trek::find($id);
-        if ($user_id == $trek->user_id)
+        if ($user_id == $trek->user_id) {
             $result = $trek->update($data);
-        else
+        } else {
             //TODO: throw unauthorized exception
             return response()->json(['data' => false], 422);
+        }
 
         if ($result) {
             return response()->json(['data' => true], 201);
@@ -130,7 +157,7 @@ class TrekController extends Controller
         if (!empty($request['post_dated'])) {
             $timeNow = Carbon::now();
             $treks = Trek::where(['starting_at', '>', $timeNow])->withCount(['users']); //TODO: add chat group and map data
-        } else if (!empty($request['attended'])) {
+        } elseif (!empty($request['attended'])) {
             $user = Auth::user();
             $treks = $user->treks()->withCount(['users']);
         } else {
@@ -191,12 +218,11 @@ class TrekController extends Controller
         //     ]);
         //here update status of trek near location
         foreach ($active_treks as $trek) {
-            // $lat =$trek->start_latitude;
-            // $lng = $trek->start_longitude;
+            // $lat =$trek->latitude;
+            // $lng = $trek->longitude;
             $loc = $trek->location();
             // $distance = $this->haversineGreatCircleDistance($loc['lat'], $loc['lng'], $data['latitude'], $data['longitude']);
             if ($this->is_close_enough($loc['lat'], $loc['lng'], $data['latitude'], $data['longitude'])) {
-      
                 $user->treks()->updateExistingPivot($trek->id, [
                     'status' => 'moving',
                 ]);
@@ -207,8 +233,8 @@ class TrekController extends Controller
         //TODO: here perform geofencing operations
         //step 1: gather all active coordinates --
         //step 2: fence the coordinates and remove the points far from the center
-        //step 3: find the average of the coordinates 
-        // return collect($data)->median("price"); 
+        //step 3: find the average of the coordinates
+        // return collect($data)->median("price");
 
         return response()->json([
             'sucess' => true,
@@ -221,7 +247,7 @@ class TrekController extends Controller
         return $this->haversineGreatCircleDistance($lat1, $lng1, $lat2, $lng2) < 50; //meters
     }
 
-    function haversineGreatCircleDistance(
+    public function haversineGreatCircleDistance(
         $latitudeFrom,
         $longitudeFrom,
         $latitudeTo,

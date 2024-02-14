@@ -14,6 +14,7 @@ class Address extends Model
         'description', 'place_id',
         'reference', 'geometry',
         'types', 'user_id',
+        'latitude','longitude'
     ];
     protected $searchable = [
         'columns' => [
@@ -24,5 +25,10 @@ class Address extends Model
     public function treks()
     {
         return $this->hasMany('App\Trek','start_address_id')->take(1);
+    }
+
+    public function location()
+    {
+        return $this->hasOne(Location::class, 'location_id');
     }
 }

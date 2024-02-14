@@ -22,8 +22,8 @@ class CreateAddressesTable extends Migration
             $table->text('geometry')->nullable();
             $table->integer('user_id');
            
-            // $table->double('lng', 14, 8)->nullable();
-            // $table->double('lat', 14, 8)->nullable();
+            $table->double('latitude', 14, 8)->nullable();
+            $table->double('longitude', 14, 8)->nullable();
 
             $table->softDeletes();
             $table->timestamps();

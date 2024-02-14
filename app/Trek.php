@@ -30,7 +30,7 @@ class Trek extends Model
             return ['lat' => $lat, 'lng' => $lng];
         }
 
-        return ['lat' => $this->start_latitude, 'lng' => $this->start_longitude];
+        return ['lat' => $this->latitude, 'lng' => $this->longitude];
     }
 
     public function users()
